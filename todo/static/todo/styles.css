@@ -1,0 +1,12 @@
+form {
+    margin: 0px;
+}
+
+#newTaskTitle {
+    border: 0px;
+    outline: none;
+    width: 100%;
+    min-height: 2em;
+    max-height: 2em;
+    height: 2em;
+}

@@ -1,0 +1,384 @@
+{% extends "todo/layout.html" %} {% load static %} {% block body %}
+
+<!-- HEADER START -->
+<div id="header" class="border-bottom mb-3">
+    <!-- HEADER START -->
+    <header class="p-2 bg-primary border-bottom mb-2">
+        <div
+            class="d-flex justify-content-between align-items-center bg-primary p-0"
+        >
+            <a
+                href="#"
+                class="d-flex align-items-center link-body-emphasis text-decoration-none"
+            >
+                <i
+                    class="bi bi-list-task"
+                    style="font-size: xx-large; color: white"
+                ></i>
+            </a>
+
+            <form class="col-4" role="search">
+                <input
+                    type="search"
+                    class="form-control mb-0"
+                    placeholder="Search..."
+                    aria-label="Search"
+                />
+            </form>
+
+            <!-- DROPDOWN MENU -->
+            <div class="dropdown">
+                <a
+                    href="#"
+                    class="d-flex align-items-center link-body-emphasis text-decoration-none dropdown-toggle text-white"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                >
+                    <img
+                        src="https://github.com/mdo.png"
+                        alt=""
+                        width="32"
+                        height="32"
+                        class="rounded-circle me-2"
+                    />
+                    <strong>{{ request.user.username }}</strong>
+                </a>
+                <ul class="dropdown-menu text-small shadow">
+                    <li>
+                        <a class="dropdown-item" href="#">Settings</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#">Profile</a>
+                    </li>
+                    <li><hr class="dropdown-divider" /></li>
+                    <li>
+                        <a class="dropdown-item" href="{% url 'logout' %}"
+                            >Sign out</a
+                        >
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </header>
+    <!-- HEADER END -->
+
+    <!-- BUTTON GROUP START -->
+    <div id="buttonGroup" class="mb-2">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <button class="btn btn-sm btn-outline-primary" id="all">
+                    <i class="bi bi-house-heart"></i> All
+                    <span>4</span>
+                </button>
+                <button class="btn btn-sm btn-outline-primary" id="today">
+                    <i class="bi bi-sun-fill"></i> Today
+                    <span>3</span>
+                </button>
+                <button class="btn btn-sm btn-outline-primary" id="important">
+                    <i class="bi bi-star-fill"></i> Important
+                    <span>2</span>
+                </button>
+            </div>
+
+            <div>
+                <i
+                    class="bi bi-sort-down me-2"
+                    style="font-size: x-large; color: blue"
+                ></i>
+
+                <i
+                    class="bi bi-plus-circle"
+                    style="font-size: x-large; color: blue"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#new-task-form-view"
+                    onclick="togglePlusIcon(this)"
+                ></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- BUTTON GROUP END -->
+</div>
+<!-- HEADER END -->
+
+
+
+
+<!-- COLLAPSE START -->
+<div id="new-task-form-view" class="collapse border-bottom mb-3">
+    <h6>New Task</h6>
+    <form id="newTaskForm" style="margin-bottom: 0px">
+        <div class="d-flex align-items-center border rounded shadow-sm">
+            <div class="px-3">
+                <i
+                    class="bi bi-circle"
+                    onmouseover="showCheckIcon(this)"
+                    onmouseout="hideCheckIcon(this)"
+                    style="font-size: large; color: blue"
+                ></i>
+            </div>
+            <div class="flex-grow-1 p-2">
+                <input id="newTaskTitle" placeholder="New Task" type="text" />
+            </div>
+        </div>
+
+        <div id="newTaskMetaData" class="mb-3">
+            <div
+                class="d-flex justify-content-between border rounded shadow p-2"
+            >
+                <div class="d-flex flex-wrap align-items-center">
+                    <div class="me-3" id="dueDateInputGroup">
+                        <i
+                            class="bi bi-calendar-check"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="bottom"
+                            title="Add due date"
+                            onclick="addDueDate()"
+                            id="dueDateInput"
+                            style="display: inline"
+                        ></i>
+                        <input
+                            id="dueDatePicker"
+                            type="date"
+                            style="font-size: smaller; display: none"
+                        />
+                        <div
+                            id="dueDateValueHolder"
+                            class="rounded border p-1"
+                            style="font-size: small; display: none"
+                            onclick="addDueDate()"
+                        ></div>
+                    </div>
+
+                    <div class="me-3">
+                        <i
+                            class="bi bi-bell"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="bottom"
+                            title="Remind me"
+                            onclick="addReminderDate()"
+                            id="reminderDateInput"
+                        ></i>
+
+                        <input
+                            type="date"
+                            id="reminderDatePicker"
+                            style="font-size: smaller; display: none"
+                        />
+                        <div
+                            id="reminderDateHolder"
+                            class="rounded border p-1"
+                            style="font-size: small; display: none"
+                            onclick="addReminderDate()"
+                        ></div>
+                    </div>
+
+                    <div class="">
+                        <i
+                            class="bi bi-repeat"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="bottom"
+                            title="Repeat"
+                            onclick="addRepeatOptions()"
+                            id="repeatInput"
+                        ></i>
+
+                        <select
+                            style="font-size: smaller; display: none"
+                            id="selectRepeatBox"
+                        >
+                            <option value="" disabled selected>
+                                Select 1 option
+                            </option>
+                            <option value="Daily">Daily</option>
+                            <option value="Weekly">Weekly</option>
+                            <option value="Montly">Monthly</option>
+                            <option value="Yearly">Yearly</option>
+                        </select>
+                        <div
+                            id="repeatOptionHolder"
+                            class="rounded border p-1"
+                            style="font-size: small; display: none"
+                            onclick="addRepeatOptions()"
+                        ></div>
+                    </div>
+                </div>
+
+                <div>
+                    <button
+                        class="btn btn-outline-primary btn-sm"
+                        id="addTaskButton"
+                    >
+                        Add
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<!-- COLLAPSE END -->
+
+<!-- PLANED TASKS VIEW START -->
+<div id="planned-tasks-view" class="border-bottom mb-3">
+    <h6>All Tasks <span>(4)</span></h6>
+
+    <div id="planned-tasks">
+        <!-- TASK 1 START -->
+        <div class="d-flex align-items-center border rounded mb-2 shadow">
+            <div class="p-3 checkbox">
+                <i
+                    class="bi bi-circle"
+                    onmouseover="showCheckIcon(this)"
+                    onmouseout="hideCheckIcon(this)"
+                    style="font-size: large; color: blue"
+                ></i>
+            </div>
+            <div class="flex-grow-1 p-2 taskdetail">
+                <div class="d-flex flex-column">
+                    <div>Task 2</div>
+                    <div class="d-flex flex-wrap">
+                        <div
+                            class="me-3"
+                            style="font-size: small; color: rgb(255, 0, 0)"
+                        >
+                            <i class="bi bi-calendar-check"></i>
+                            <span>Due Tue, May 14</span>
+                        </div>
+                        <div class="me-3" style="font-size: small">
+                            <i class="bi bi-bell"></i>
+                            <span>Tue, May 14</span>
+                        </div>
+                        <div style="font-size: small">
+                            <i class="bi bi-repeat"></i>
+                            <span> Daily</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 starbutton">
+                <i
+                    class="bi bi-star"
+                    data-bs-toggle="tooltip"
+                    style="font-size: large; color: blue"
+                    data-bs-placement="bottom"
+                    title="Mask task as important"
+                >
+                </i>
+            </div>
+        </div>
+        <!-- TASK 1 END -->
+
+        <!-- TASK 2 START -->
+        <div class="d-flex align-items-center border rounded mb-2 shadow">
+            <div class="p-3 checkbox">
+                <i
+                    class="bi bi-circle"
+                    onmouseover="showCheckIcon(this)"
+                    onmouseout="hideCheckIcon(this)"
+                    style="font-size: large; color: blue"
+                ></i>
+            </div>
+            <div class="flex-grow-1 p-2 taskdetail">
+                <div class="d-flex flex-column">
+                    <div>Task 2</div>
+                    <div class="d-flex flex-wrap">
+                        <div
+                            class="me-3"
+                            style="font-size: small; color: rgb(255, 0, 0)"
+                        >
+                            <i class="bi bi-calendar-check"></i>
+                            <span>Due Tue, May 14</span>
+                        </div>
+                        <div class="me-3" style="font-size: small">
+                            <i class="bi bi-bell"></i>
+                            <span>Tue, May 14</span>
+                        </div>
+                        <div style="font-size: small">
+                            <i class="bi bi-repeat"></i>
+                            <span> Daily</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 starbutton">
+                <i
+                    class="bi bi-star"
+                    data-bs-toggle="tooltip"
+                    style="font-size: large; color: blue"
+                    data-bs-placement="bottom"
+                    title="Mask task as important"
+                >
+                </i>
+            </div>
+        </div>
+        <!-- TASK 2 END -->
+    </div>
+</div>
+<!-- PLANNED TASK VIEW END -->
+
+<!-- COMPLETED TASKS VIEW START -->
+<div id="completed-tasks-view">
+    <h6 data-bs-toggle="collapse" data-bs-target="#comleted-tasks">
+        <i class="bi bi-caret-down-fill" onclick="toggleCaretIcon(this)"
+            >Completed <span>(4)</span>
+        </i>
+    </h6>
+
+    <div id="comleted-tasks" class="collapse">
+        <!-- TASK 1 START-->
+        <div class="d-flex align-items-center border rounded mb-2 shadow">
+            <div class="p-3 checkbox">
+                <i
+                    class="bi bi-check-circle-fill"
+                    style="color: blue; font-size: large"
+                ></i>
+            </div>
+            <div class="flex-grow-1 p-2 taskdetail">
+                <div class="d-flex flex-column">
+                    <div>Task 1</div>
+                    <div class="d-flex flex-wrap">
+                        <div
+                            class="me-3"
+                            style="font-size: small; color: rgb(255, 0, 0)"
+                        >
+                            <i class="bi bi-calendar-check"></i>
+                            <span>Due Tue, May 14</span>
+                        </div>
+                        <div class="me-3" style="font-size: small">
+                            <i class="bi bi-bell"></i>
+                            <span>Tue, May 14</span>
+                        </div>
+                        <div style="font-size: small">
+                            <i class="bi bi-repeat"></i>
+                            <span> Daily</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 starbutton">
+                <i
+                    class="bi bi-star"
+                    data-bs-toggle="tooltip"
+                    style="font-size: large; color: blue"
+                    data-bs-placement="bottom"
+                    title="Mask task as important"
+                >
+                </i>
+            </div>
+        </div>
+        <!-- TASK 1 END-->
+    </div>
+</div>
+<!-- COMPLETED TASKS VIEW END -->
+
+<!-- FOOTER START -->
+<div id="footer" class="border-top mt-3 p-3 text-center" style="font-size: smaller;">
+    <strong>This is </strong><a href="https://cs50.harvard.edu/web/2020/">CS50’s Web Programming with Python and JavaScript</a>
+</div>
+<!-- FOOTER END -->
+
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'todo/index.js' %}"></script>
+{% endblock %}
