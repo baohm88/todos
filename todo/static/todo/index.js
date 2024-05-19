@@ -11,9 +11,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Add task on submit
     document.getElementById("newTaskForm").onsubmit = addNewTask;
-    document.getElementById("all").addEventListener('click') = load_tasks('all');
-    document.getElementById("important").addEventListener('click') = load_tasks('important');
-    document.getElementById("today").addEventListener('click') = load_tasks('today');
+    document.getElementById("all").addEventListener('click', () => load_tasks('all'));
+    document.getElementById("important").addEventListener('click', () => load_tasks('important'));
+    document.getElementById("today").addEventListener('click', () => load_tasks('today'));
 
     // By default, load all tasks
     load_tasks("all");

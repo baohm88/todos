@@ -6,21 +6,53 @@ from django.http import JsonResponse
 from django.shortcuts import HttpResponse, HttpResponseRedirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
+import datetime
 
-from .models import User
+from .models import User, Task
 
 
 def index(request):
 
     # Authenticated users view their inbox
     if request.user.is_authenticated:
-
-        return render(request, "todo/index.html")
+        tasks = Task.objects.filter(creator=request.user)
+        return render(request, "todo/index.html", {'tasks': tasks})
 
     # Everyone else is prompted to sign in
     else:
         return HttpResponseRedirect(reverse("login"))
 
+
+@login_required
+def task_list(request, task_list):
+
+    # Filter tasks returned based on mailbox
+    if task_list == "today":
+        tasks = Task.objects.filter(creator=request.user, due_date=datetime.date.today())
+    elif task_list == "important":
+        tasks = Task.objects.filter(creator=request.user, important=True)
+    elif task_list == "all":
+        tasks = Task.objects.filter(creator=request.user)
+    else:
+        return JsonResponse({"error": "Invalid tasks list."}, status=400)
+
+    # Return tasks in reverse chronologial order
+    tasks = tasks.order_by("-due_date").all()
+    for task in tasks:
+        print(task)
+    return JsonResponse([task.serialize() for task in tasks], safe=False)
+
+
+@csrf_exempt
+@login_required
+def create_task(request):
+    pass
+
+
+@csrf_exempt
+@login_required
+def view_task(request, task_id):
+    pass
 
 # @csrf_exempt
 # @login_required
