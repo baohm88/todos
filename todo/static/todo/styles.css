@@ -2,11 +2,18 @@ form {
     margin: 0px;
 }
 
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+    transition: background-color 0s 600000s, color 0s 600000s !important;
+}
+
 #newTaskTitle {
+    background-color: transparent;
     border: 0px;
     outline: none;
     width: 100%;
-    min-height: 2em;
-    max-height: 2em;
-    height: 2em;
+}
+
+input:-internal-autofill-selected {
+    background-color: transparent;
 }
