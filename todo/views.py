@@ -38,8 +38,6 @@ def task_list(request, task_list):
 
     # Return tasks in reverse chronologial order
     tasks = tasks.order_by("-due_date").all()
-    for task in tasks:
-        print(task)
     return JsonResponse([task.serialize() for task in tasks], safe=False)
 
 
