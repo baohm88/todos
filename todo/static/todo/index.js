@@ -165,6 +165,27 @@ function addNewTask() {
     console.log(dueDate);
     console.log(reminder);
     console.log(repeat);
+    // Send data to backend
+    fetch("/tasks/", {
+        method: "POST",
+        // headers: {
+        //     "Content-Type": "application/json",
+        // },
+        body: JSON.stringify({
+            title: title,
+            due_date: dueDate,
+            reminder_date: reminder,
+            repeat: repeat,
+        }),
+    })
+        .then((response) => response.json())
+        .then((result) => {
+            console.log(result);
+            load_tasks("all");
+        })
+        .catch((error) => {
+            console.error("Error:", error);
+        });
     // Clear new task form + hide modal
     resetNewTaskForm();
     return false;
@@ -173,7 +194,9 @@ function addNewTask() {
 function load_tasks(task_list) {
     // Show the tast list name
     document.querySelector("#planned-tasks-view").innerHTML = `<h6>${
-        task_list.charAt(0).toUpperCase() + task_list.slice(1) + ' <span id="task_count"></span>'
+        task_list.charAt(0).toUpperCase() +
+        task_list.slice(1) +
+        ' <span id="task_count"></span>'
     }</h6>`;
 
     fetch(`/tasks/${task_list}`)
@@ -232,8 +255,9 @@ function load_tasks(task_list) {
                 // Append task to show on top of the page
                 document.querySelector("#planned-tasks-view").append(newTask);
             });
-            document.getElementById('task_count').innerHTML = `(${tasks.length})`;
-            console.log(tasks.length);
+            document.getElementById(
+                "task_count"
+            ).innerHTML = `(${tasks.length})`;
         })
         .catch((error) => {
             console.error("Error:", error);

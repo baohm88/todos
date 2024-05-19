@@ -37,14 +37,34 @@ def task_list(request, task_list):
         return JsonResponse({"error": "Invalid tasks list."}, status=400)
 
     # Return tasks in reverse chronologial order
-    tasks = tasks.order_by("-due_date").all()
+    tasks = tasks.order_by("due_date").all()
     return JsonResponse([task.serialize() for task in tasks], safe=False)
 
 
 @csrf_exempt
 @login_required
 def create_task(request):
-    pass
+    # Create a new task must via POST
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)
+    data = json.loads(request.body)
+    
+    # Get contents of task
+    title = data.get('title')
+    due_date = data.get('due_date')
+    reminder_date = data.get('reminder_date')
+    repeat = data.get('repeat')
+    
+    # Create new task and save
+    task = Task(
+        creator= request.user,
+        title = title,
+        due_date = due_date,
+        reminder_date = reminder_date,
+        repeat = repeat
+    )
+    task.save()
+    return JsonResponse({"message": "Task received."}, status=201)
 
 
 @csrf_exempt

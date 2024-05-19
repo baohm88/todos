@@ -9,7 +9,7 @@ urlpatterns = [
     path("register", views.register, name="register"),
 
     # API Routes
-    path("tasks", views.create_task, name="create_task"),
+    path("tasks/", views.create_task, name="create_task"),
     path("tasks/<int:task_id>", views.view_task, name="view_task"),
     path("tasks/<str:task_list>", views.task_list, name="task_list"),
 ]
