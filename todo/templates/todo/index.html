@@ -224,56 +224,60 @@
 
 <!-- COMPLETED TASKS VIEW START -->
 <div id="completed-tasks-view">
-    <h6 data-bs-toggle="collapse" data-bs-target="#comleted-tasks">
-        <i class="bi bi-caret-down-fill" onclick="toggleCaretIcon(this)"
-            >Completed <span>(4)</span>
-        </i>
-    </h6>
+    {% if completed_tasks %}
+        {% for task in completed_tasks %}
+            <h6 data-bs-toggle="collapse" data-bs-target="#comleted-tasks">
+                <i class="bi bi-caret-down-fill" onclick="toggleCaretIcon(this)"
+                    >Completed <span>({{ completed_tasks.count }})</span>
+                </i>
+            </h6>
 
-    <div id="comleted-tasks" class="collapse">
-        <!-- TASK 1 START-->
-        <div class="d-flex align-items-center border rounded mb-2 shadow">
-            <div class="p-3 checkbox">
-                <i
-                    class="bi bi-check-circle-fill"
-                    style="color: blue; font-size: large"
-                ></i>
-            </div>
-            <div class="flex-grow-1 p-2 taskdetail">
-                <div class="d-flex flex-column">
-                    <div>Task 1</div>
-                    <div class="d-flex flex-wrap">
-                        <div
-                            class="me-3"
-                            style="font-size: small; color: rgb(255, 0, 0)"
-                        >
-                            <i class="bi bi-calendar-check"></i>
-                            <span>Due Tue, May 14</span>
-                        </div>
-                        <div class="me-3" style="font-size: small">
-                            <i class="bi bi-bell"></i>
-                            <span>Tue, May 14</span>
-                        </div>
-                        <div style="font-size: small">
-                            <i class="bi bi-repeat"></i>
-                            <span> Daily</span>
+            <div id="comleted-tasks" class="collapse">
+                <!-- TASK 1 START-->
+                <div class="d-flex align-items-center border rounded mb-2 shadow">
+                    <div class="p-3 checkbox">
+                        <i
+                            class="bi bi-check-circle-fill"
+                            style="color: blue; font-size: large"
+                        ></i>
+                    </div>
+                    <div class="flex-grow-1 p-2 taskdetail">
+                        <div class="d-flex flex-column">
+                            <div>{{ task.title }}</div>
+                            <div class="d-flex flex-wrap">
+                                <div
+                                    class="me-3"
+                                    style="font-size: small; color: rgb(255, 0, 0)"
+                                >
+                                    <i class="bi bi-calendar-check"></i>
+                                    <span>Due {{ task.due_date }}</span>
+                                </div>
+                                <div class="me-3" style="font-size: small">
+                                    <i class="bi bi-bell"></i>
+                                    <span>{{ task.reminder_date}}</span>
+                                </div>
+                                <div style="font-size: small">
+                                    <i class="bi bi-repeat"></i>
+                                    <span>{{ task.repeat }} </span>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                    <div class="p-3 starbutton">
+                        <i
+                            class="bi bi-star"
+                            data-bs-toggle="tooltip"
+                            style="font-size: large; color: blue"
+                            data-bs-placement="bottom"
+                            title="Mask task as important"
+                        >
+                        </i>
+                    </div>
                 </div>
+                <!-- TASK 1 END-->
             </div>
-            <div class="p-3 starbutton">
-                <i
-                    class="bi bi-star"
-                    data-bs-toggle="tooltip"
-                    style="font-size: large; color: blue"
-                    data-bs-placement="bottom"
-                    title="Mask task as important"
-                >
-                </i>
-            </div>
-        </div>
-        <!-- TASK 1 END-->
-    </div>
+        {% endfor %}
+    {% endif %}
 </div>
 <!-- COMPLETED TASKS VIEW END -->
 

@@ -15,8 +15,8 @@ def index(request):
 
     # Authenticated users view their inbox
     if request.user.is_authenticated:
-        tasks = Task.objects.filter(creator=request.user)
-        return render(request, "todo/index.html", {'tasks': tasks})
+        completed_tasks = Task.objects.filter(creator=request.user,completed=True)
+        return render(request, "todo/index.html", {'completed_tasks': completed_tasks})
 
     # Everyone else is prompted to sign in
     else:
