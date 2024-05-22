@@ -191,17 +191,198 @@ function addNewTask() {
     return false;
 }
 
+
+function toggleComplete(task_id) {
+    // Fetch task based on its ID
+    fetch(`/tasks/${task_id}`)
+        .then((response) => response.json())
+        .then((task) => {
+            // Update complete status
+            fetch(`/tasks/${task_id}`, {
+                method: "PUT",
+                body: JSON.stringify({
+                    completed: !task.completed,
+                }),
+            }).then(() => {
+                load_tasks("all");
+            });
+        });
+}
+
+function toggleImportant(task_id) {
+    // Query task based on its ID
+    fetch(`/tasks/${task_id}`)
+        .then((response) => response.json())
+        .then((task) => {
+            // Update task's complete status
+            fetch(`/tasks/${task_id}`, {
+                method: "PUT",
+                body: JSON.stringify({
+                    important: !task.important,
+                }),
+            }).then(() => {
+                console.log("done");
+                load_tasks("all");
+            });
+        });
+}
+
+// function load_tasks(task_list) {
+//     const plannedTasks = document.getElementById("planned");
+//     const completeTasks = document.getElementById("complete");
+
+//     plannedTasks.innerHTML = '<h6 id="planned-tasks-count"></h6>';
+//     completeTasks.innerHTML = '<h6 id="complete-tasks-count"></h6>';
+
+//     fetch(`/tasks/${task_list}`)
+//         .then((response) => response.json())
+//         .then((tasks) => {
+//             completed = 0;
+//             planned = 0;
+//             tasks.forEach((task) => {
+//                 // Create new task -> add class name
+//                 const newTask = document.createElement("div");
+//                 newTask.className =
+//                     "d-flex align-items-center border rounded mb-2 shadow";
+
+//                 if (task.completed) {
+//                     newTask.innerHTML = `
+//                         <div class="p-3">
+//                             <i
+//                                 class="bi bi-check-circle-fill"
+//                                 onclick="toggleComplete(${task.id})"
+//                                 style="font-size: large; color: blue"
+//                             ></i>
+//                         </div>
+//                         <div class="flex-grow-1 p-2">
+//                             <div class="d-flex flex-column">
+//                                 <div class="text-decoration-line-through">${
+//                                     task.title
+//                                 }
+//                                 </div>
+//                                 <div class="d-flex flex-wrap">
+//                                     <div
+//                                         class="me-3"
+//                                         style="font-size: small; color: rgb(255, 0, 0)"
+//                                     >
+//                                         <i class="bi bi-calendar-check"></i>
+//                                         <span>${task.due_date}</span>
+//                                     </div>
+//                                     <div class="me-3" style="font-size: small">
+//                                         <i class="bi bi-bell"></i>
+//                                         <span>${task.reminder_date}</span>
+//                                     </div>
+//                                     <div style="font-size: small">
+//                                         <i class="bi bi-repeat"></i>
+//                                         <span> ${task.repeat}</span>
+//                                     </div>
+//                                 </div>
+//                             </div>
+//                         </div>
+//                         <div class="p-3">
+//                             <i
+//                                 class="${
+//                                     task.important
+//                                         ? "bi bi-star-fill"
+//                                         : "bi bi-star"
+//                                 }"
+//                                 data-bs-toggle="tooltip"
+//                                 style="font-size: large; color: blue"
+//                                 data-bs-placement="bottom"
+//                                 onclick="toggleImportant(${task.id})"
+//                                 title="Mask task as important"
+//                             >
+//                             </i>
+//                         </div>
+//                     `;
+//                     completed++;
+//                     document.querySelector("#complete").append(newTask);
+//                 } else {
+//                     newTask.innerHTML = `
+//                         <div class="p-3">
+//                             <i
+//                                 class="bi bi-circle"
+//                                 onmouseover="showCheckIcon(this)"
+//                                 onmouseout="hideCheckIcon(this)"
+//                                 onclick="toggleComplete(${task.id})"
+//                                 style="font-size: large; color: blue"
+//                             ></i>
+//                         </div>
+//                         <div class="flex-grow-1 p-2">
+//                             <div class="d-flex flex-column">
+//                                 <div>${task.title}</div>
+//                                 <div class="d-flex flex-wrap">
+//                                     <div
+//                                         class="me-3"
+//                                         style="font-size: small; color: rgb(255, 0, 0)"
+//                                     >
+//                                         <i class="bi bi-calendar-check"></i>
+//                                         <span>${task.due_date}</span>
+//                                     </div>
+//                                     <div class="me-3" style="font-size: small">
+//                                         <i class="bi bi-bell"></i>
+//                                         <span>${task.reminder_date}</span>
+//                                     </div>
+//                                     <div style="font-size: small">
+//                                         <i class="bi bi-repeat"></i>
+//                                         <span> ${task.repeat}</span>
+//                                     </div>
+//                                 </div>
+//                             </div>
+//                         </div>
+//                         <div class="p-3">
+//                             <i
+//                                 class="${
+//                                     task.important
+//                                         ? "bi bi-star-fill"
+//                                         : "bi bi-star"
+//                                 }"
+//                                 data-bs-toggle="tooltip"
+//                                 style="font-size: large; color: blue"
+//                                 data-bs-placement="bottom"
+//                                 onclick="toggleImportant(${task.id})"
+//                                 title="Mask task as important"
+//                             >
+//                             </i>
+//                         </div>
+//                     `;
+//                     // Increase num of planned tasks
+//                     planned++;
+//                     // Append new task to DOM
+//                     document.querySelector("#planned").append(newTask);
+//                 }
+//             });
+
+//             // Update num of planned tasks
+//             document.querySelector("#planned-tasks-count").innerHTML = `${
+//                 task_list.charAt(0).toUpperCase() + task_list.slice(1)
+//             } (${planned})`;
+            
+//             // Update num of completed task
+//             document.getElementById(
+//                 "complete-tasks-count"
+//             ).innerHTML = `Completed (${completed})`;
+//         })
+//         // Catch any error
+//         .catch((error) => {
+//             console.error("Error:", error);
+//         });
+// }
+
 function load_tasks(task_list) {
-    document.getElementById("planned").innerHTML =
-        '<h6 id="planned-tasks-count"></h6>';
-    document.getElementById("complete").innerHTML =
-        '<h6 id="complete-tasks-count"></h6>';
+    const plannedTasks = document.getElementById("planned");
+    const completeTasks = document.getElementById("complete");
+
+    plannedTasks.innerHTML = '<h6 id="planned-tasks-count"></h6>';
+    completeTasks.innerHTML = '<h6 id="complete-tasks-count"></h6>';
+
     fetch(`/tasks/${task_list}`)
         .then((response) => response.json())
         .then((tasks) => {
             completed = 0;
             planned = 0;
             tasks.forEach((task) => {
+                // Create new task -> add class name
                 const newTask = document.createElement("div");
                 newTask.className =
                     "d-flex align-items-center border rounded mb-2 shadow";
@@ -219,7 +400,8 @@ function load_tasks(task_list) {
                             <div class="d-flex flex-column">
                                 <div class="text-decoration-line-through">${
                                     task.title
-                                }</div>
+                                }
+                                </div>
                                 <div class="d-flex flex-wrap">
                                     <div
                                         class="me-3"
@@ -312,10 +494,12 @@ function load_tasks(task_list) {
                     document.querySelector("#planned").append(newTask);
                 }
             });
+
             // Update num of planned tasks
             document.querySelector("#planned-tasks-count").innerHTML = `${
                 task_list.charAt(0).toUpperCase() + task_list.slice(1)
             } (${planned})`;
+            
             // Update num of completed task
             document.getElementById(
                 "complete-tasks-count"
@@ -324,40 +508,5 @@ function load_tasks(task_list) {
         // Catch any error
         .catch((error) => {
             console.error("Error:", error);
-        });
-}
-
-function toggleComplete(task_id) {
-    // Query for selected task based on its ID
-    fetch(`/tasks/${task_id}`)
-        .then((response) => response.json())
-        .then((task) => {
-            // Update complete status
-            fetch(`/tasks/${task_id}`, {
-                method: "PUT",
-                body: JSON.stringify({
-                    completed: !task.completed,
-                }),
-            }).then(() => {
-                load_tasks("all");
-            });
-        });
-}
-
-function toggleImportant(task_id) {
-    // Query for selected task based on its ID
-    fetch(`/tasks/${task_id}`)
-        .then((response) => response.json())
-        .then((task) => {
-            // Update complete status
-            fetch(`/tasks/${task_id}`, {
-                method: "PUT",
-                body: JSON.stringify({
-                    important: !task.important,
-                }),
-            }).then(() => {
-                console.log("done");
-                load_tasks("all");
-            });
         });
 }
