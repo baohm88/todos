@@ -217,7 +217,9 @@ function load_tasks(task_list) {
                         </div>
                         <div class="flex-grow-1 p-2">
                             <div class="d-flex flex-column">
-                                <div class="text-decoration-line-through">${task.title}</div>
+                                <div class="text-decoration-line-through">${
+                                    task.title
+                                }</div>
                                 <div class="d-flex flex-wrap">
                                     <div
                                         class="me-3"
@@ -239,10 +241,15 @@ function load_tasks(task_list) {
                         </div>
                         <div class="p-3">
                             <i
-                                class="bi bi-star"
+                                class="${
+                                    task.important
+                                        ? "bi bi-star-fill"
+                                        : "bi bi-star"
+                                }"
                                 data-bs-toggle="tooltip"
                                 style="font-size: large; color: blue"
                                 data-bs-placement="bottom"
+                                onclick="toggleImportant(${task.id})"
                                 title="Mask task as important"
                             >
                             </i>
@@ -285,10 +292,15 @@ function load_tasks(task_list) {
                         </div>
                         <div class="p-3">
                             <i
-                                class="bi bi-star"
+                                class="${
+                                    task.important
+                                        ? "bi bi-star-fill"
+                                        : "bi bi-star"
+                                }"
                                 data-bs-toggle="tooltip"
                                 style="font-size: large; color: blue"
                                 data-bs-placement="bottom"
+                                onclick="toggleImportant(${task.id})"
                                 title="Mask task as important"
                             >
                             </i>
@@ -315,79 +327,37 @@ function load_tasks(task_list) {
         });
 }
 
-function load_tasks_2(task_list) {
-    // Show the tast list name
-    document.querySelector("#planned-tasks-view").innerHTML = `<h6>${
-        task_list.charAt(0).toUpperCase() +
-        task_list.slice(1) +
-        ' <span id="task_count"></span>'
-    }</h6>`;
-
-    fetch(`/tasks/${task_list}`)
+function toggleComplete(task_id) {
+    // Query for selected task based on its ID
+    fetch(`/tasks/${task_id}`)
         .then((response) => response.json())
-        .then((tasks) => {
-            tasks.forEach((task) => {
-                // This will log the JSON data to the console
-                // You can now use the data to update the frontend UI
-                const newTask = document.createElement("div");
-                newTask.className =
-                    "d-flex align-items-center border rounded mb-2 shadow";
-                newTask.innerHTML = `
-                    <div class="p-3">
-                        <i
-                            class="bi bi-circle"
-                            onmouseover="showCheckIcon(this)"
-                            onmouseout="hideCheckIcon(this)"
-                            style="font-size: large; color: blue"
-                        ></i>
-                    </div>
-                    <div class="flex-grow-1 p-2">
-                        <div class="d-flex flex-column">
-                            <div>${task.title}</div>
-                            <div class="d-flex flex-wrap">
-                                <div
-                                    class="me-3"
-                                    style="font-size: small; color: rgb(255, 0, 0)"
-                                >
-                                    <i class="bi bi-calendar-check"></i>
-                                    <span>${task.due_date}</span>
-                                </div>
-                                <div class="me-3" style="font-size: small">
-                                    <i class="bi bi-bell"></i>
-                                    <span>${task.reminder_date}</span>
-                                </div>
-                                <div style="font-size: small">
-                                    <i class="bi bi-repeat"></i>
-                                    <span> ${task.repeat}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="p-3">
-                        <i
-                            class="bi bi-star"
-                            data-bs-toggle="tooltip"
-                            style="font-size: large; color: blue"
-                            data-bs-placement="bottom"
-                            title="Mask task as important"
-                        >
-                        </i>
-                    </div>
-                `;
-                // Add click event to view the task
-
-                // Append task to show on top of the page
-                document.querySelector("#planned-tasks-view").append(newTask);
+        .then((task) => {
+            // Update complete status
+            fetch(`/tasks/${task_id}`, {
+                method: "PUT",
+                body: JSON.stringify({
+                    completed: !task.completed,
+                }),
+            }).then(() => {
+                load_tasks("all");
             });
-            document.getElementById(
-                "task_count"
-            ).innerHTML = `(${tasks.length})`;
-        })
-        .catch((error) => {
-            console.error("Error:", error);
         });
 }
 
-function toggleComplete(task_id) {
-    console.log(`Toggle complete status for task ${task_id}`);
+function toggleImportant(task_id) {
+    // Query for selected task based on its ID
+    fetch(`/tasks/${task_id}`)
+        .then((response) => response.json())
+        .then((task) => {
+            // Update complete status
+            fetch(`/tasks/${task_id}`, {
+                method: "PUT",
+                body: JSON.stringify({
+                    important: !task.important,
+                }),
+            }).then(() => {
+                console.log("done");
+                load_tasks("all");
+            });
+        });
 }

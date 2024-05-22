@@ -1,0 +1,113 @@
+<!-- COLLAPSE START -->
+<div id="new-task-form-view" class="collapse border-bottom mb-3">
+    <h6>New Task</h6>
+    <form id="newTaskForm" style="margin-bottom: 0px">
+        <div class="d-flex align-items-center border rounded shadow-sm">
+            <div class="px-3">
+                <i
+                    class="bi bi-circle"
+                    onmouseover="showCheckIcon(this)"
+                    onmouseout="hideCheckIcon(this)"
+                    style="font-size: large; color: blue"
+                ></i>
+            </div>
+            <div class="flex-grow-1 p-2">
+                <input id="newTaskTitle" placeholder="New Task" type="text" />
+            </div>
+        </div>
+
+        <div id="newTaskMetaData" class="mb-3">
+            <div
+                class="d-flex justify-content-between border rounded shadow p-2"
+            >
+                <div class="d-flex flex-wrap align-items-center">
+                    <div class="me-3" id="dueDateInputGroup">
+                        <i
+                            class="bi bi-calendar-check"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="bottom"
+                            title="Add due date"
+                            onclick="addDueDate()"
+                            id="dueDateInput"
+                            style="display: inline"
+                        ></i>
+                        <input
+                            id="dueDatePicker"
+                            type="date"
+                            style="font-size: smaller; display: none"
+                        />
+                        <div
+                            id="dueDateValueHolder"
+                            class="rounded border p-1"
+                            style="font-size: small; display: none"
+                            onclick="addDueDate()"
+                        ></div>
+                    </div>
+
+                    <div class="me-3">
+                        <i
+                            class="bi bi-bell"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="bottom"
+                            title="Remind me"
+                            onclick="addReminderDate()"
+                            id="reminderDateInput"
+                        ></i>
+
+                        <input
+                            type="date"
+                            id="reminderDatePicker"
+                            style="font-size: smaller; display: none"
+                        />
+                        <div
+                            id="reminderDateHolder"
+                            class="rounded border p-1"
+                            style="font-size: small; display: none"
+                            onclick="addReminderDate()"
+                        ></div>
+                    </div>
+
+                    <div class="">
+                        <i
+                            class="bi bi-repeat"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="bottom"
+                            title="Repeat"
+                            onclick="addRepeatOptions()"
+                            id="repeatInput"
+                        ></i>
+
+                        <select
+                            style="font-size: smaller; display: none"
+                            id="selectRepeatBox"
+                        >
+                            <option value="" disabled selected>
+                                Select 1 option
+                            </option>
+                            <option value="Daily">Daily</option>
+                            <option value="Weekly">Weekly</option>
+                            <option value="Montly">Monthly</option>
+                            <option value="Yearly">Yearly</option>
+                        </select>
+                        <div
+                            id="repeatOptionHolder"
+                            class="rounded border p-1"
+                            style="font-size: small; display: none"
+                            onclick="addRepeatOptions()"
+                        ></div>
+                    </div>
+                </div>
+
+                <div>
+                    <button
+                        class="btn btn-outline-primary btn-sm"
+                        id="addTaskButton"
+                    >
+                        Add
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<!-- COLLAPSE END -->

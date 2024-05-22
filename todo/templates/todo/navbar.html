@@ -1,0 +1,101 @@
+<!-- HEADER START -->
+<div id="header" class="border-bottom mb-3">
+    <!-- HEADER START -->
+    <header class="p-2 bg-primary border-bottom mb-2">
+        <div
+            class="d-flex justify-content-between align-items-center bg-primary p-0"
+        >
+            <a
+                href="#"
+                class="d-flex align-items-center link-body-emphasis text-decoration-none"
+            >
+                <i
+                    class="bi bi-list-task"
+                    style="font-size: xx-large; color: white"
+                ></i>
+                <p class="text-light">Tasks</p>
+            </a>
+
+            <form class="col-4" role="search">
+                <input
+                    type="search"
+                    class="form-control mb-0"
+                    placeholder="Search..."
+                    aria-label="Search"
+                />
+            </form>
+
+            <!-- DROPDOWN MENU -->
+            <div class="dropdown">
+                <a
+                    href="#"
+                    class="d-flex align-items-center link-body-emphasis text-decoration-none dropdown-toggle text-white"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                >
+                    <img
+                        src="https://github.com/mdo.png"
+                        alt=""
+                        width="32"
+                        height="32"
+                        class="rounded-circle me-2"
+                    />
+                    <strong>{{ request.user.username }}</strong>
+                </a>
+                <ul class="dropdown-menu text-small shadow">
+                    <li>
+                        <a class="dropdown-item" href="#">Settings</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#">Profile</a>
+                    </li>
+                    <li><hr class="dropdown-divider" /></li>
+                    <li>
+                        <a class="dropdown-item" href="{% url 'logout' %}"
+                            >Sign out</a
+                        >
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </header>
+    <!-- HEADER END -->
+
+    <!-- BUTTON GROUP START -->
+    <div id="buttonGroup" class="mb-2">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <button class="btn btn-sm btn-outline-primary" id="all">
+                    <i class="bi bi-house-heart"></i> All
+                    <span>4</span>
+                </button>
+                <button class="btn btn-sm btn-outline-primary" id="today">
+                    <i class="bi bi-sun-fill"></i> Today
+                    <span>3</span>
+                </button>
+                <button class="btn btn-sm btn-outline-primary" id="important">
+                    <i class="bi bi-star-fill"></i> Important
+                    <span>2</span>
+                </button>
+            </div>
+
+            <div>
+                <i
+                    class="bi bi-sort-down me-2"
+                    style="font-size: x-large; color: blue"
+                ></i>
+
+                <i
+                    class="bi bi-plus-circle"
+                    style="font-size: x-large; color: blue"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#new-task-form-view"
+                    onclick="togglePlusIcon(this)"
+                ></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- BUTTON GROUP END -->
+</div>
+<!-- HEADER END -->
