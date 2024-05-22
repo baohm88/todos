@@ -13,7 +13,6 @@
                     class="bi bi-list-task"
                     style="font-size: xx-large; color: white"
                 ></i>
-                <p class="text-light">Tasks</p>
             </a>
 
             <form class="col-4" role="search">
@@ -66,24 +65,51 @@
         <div class="d-flex justify-content-between align-items-center">
             <div>
                 <button class="btn btn-sm btn-outline-primary" id="all">
-                    <i class="bi bi-house-heart"></i> All
-                    <span>4</span>
+                    <i class="bi bi-house-heart"></i>
+                    <span class="task-count">All</span>
+                    <span id="allTasksCount"></span>
                 </button>
                 <button class="btn btn-sm btn-outline-primary" id="today">
-                    <i class="bi bi-sun-fill"></i> Today
-                    <span>3</span>
+                    <i class="bi bi-sun-fill"></i>
+                    <span class="task-count">Today</span>
+                    <span id="todayTasksCount"></span>
                 </button>
                 <button class="btn btn-sm btn-outline-primary" id="important">
-                    <i class="bi bi-star-fill"></i> Important
-                    <span>2</span>
+                    <i class="bi bi-star-fill"></i>
+                    <span class="task-count">Important</span>
+                    <span id="importantTasksCount"></span>
                 </button>
             </div>
 
             <div>
                 <i
-                    class="bi bi-sort-down me-2"
+                    class="bi bi-arrow-down-up me-2"
                     style="font-size: x-large; color: blue"
+                    onclick="toggleSorting(this)"
+                    data-bs-toggle="dropdown"
                 ></i>
+                <ul class="dropdown-menu">
+                    <li class="dropdown-header"><h6>Sort by</h6></li>
+                    <li class="dropdown-divider"><hr /></li>
+                    <li class="dropdown-item">
+                        <i class="bi bi-star" style="color: blue"></i>
+                        Importance
+                    </li>
+                    <li class="dropdown-item">
+                        <i class="bi bi-bell" style="color: blue"></i> Due date
+                    </li>
+                    <li class="dropdown-item">
+                        <i
+                            class="bi bi-sort-alpha-down"
+                            style="color: blue"
+                        ></i>
+                        Alphabetically
+                    </li>
+                    <li class="dropdown-item">
+                        <i class="bi bi-database-add" style="color: blue"></i>
+                        Creation date
+                    </li>
+                </ul>
 
                 <i
                     class="bi bi-plus-circle"

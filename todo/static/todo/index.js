@@ -191,7 +191,6 @@ function addNewTask() {
     return false;
 }
 
-
 function toggleComplete(task_id) {
     // Fetch task based on its ID
     fetch(`/tasks/${task_id}`)
@@ -221,7 +220,6 @@ function toggleImportant(task_id) {
                     important: !task.important,
                 }),
             }).then(() => {
-                console.log("done");
                 load_tasks("all");
             });
         });
@@ -357,7 +355,7 @@ function toggleImportant(task_id) {
 //             document.querySelector("#planned-tasks-count").innerHTML = `${
 //                 task_list.charAt(0).toUpperCase() + task_list.slice(1)
 //             } (${planned})`;
-            
+
 //             // Update num of completed task
 //             document.getElementById(
 //                 "complete-tasks-count"
@@ -374,7 +372,15 @@ function load_tasks(task_list) {
     const completeTasks = document.getElementById("complete");
 
     plannedTasks.innerHTML = '<h6 id="planned-tasks-count"></h6>';
-    completeTasks.innerHTML = '<h6 id="complete-tasks-count"></h6>';
+    completeTasks.innerHTML = `
+        <h6 data-bs-toggle="collapse" data-bs-target="#completed-tasks">
+            <i
+                id="complete-tasks-count"
+                class="bi bi-caret-down-fill"
+                onclick="toggleCaretIcon(this)"
+            ></i>
+        </h6>
+        <div id="completed-tasks" class="collapse"></div>`;
 
     fetch(`/tasks/${task_list}`)
         .then((response) => response.json())
@@ -385,7 +391,7 @@ function load_tasks(task_list) {
                 // Create new task -> add class name
                 const newTask = document.createElement("div");
                 newTask.className =
-                    "d-flex align-items-center border rounded mb-2 shadow";
+                    "d-flex align-items-center border rounded mb-3 bg-white shadow-sm";
 
                 if (task.completed) {
                     newTask.innerHTML = `
@@ -437,8 +443,12 @@ function load_tasks(task_list) {
                             </i>
                         </div>
                     `;
+
+                    // Increase num of completed tasks by 1
                     completed++;
-                    document.querySelector("#complete").append(newTask);
+
+                    // Append new completed task to DOM
+                    document.querySelector("#completed-tasks").append(newTask);
                 } else {
                     newTask.innerHTML = `
                         <div class="p-3">
@@ -488,9 +498,11 @@ function load_tasks(task_list) {
                             </i>
                         </div>
                     `;
+
                     // Increase num of planned tasks
                     planned++;
-                    // Append new task to DOM
+
+                    // Append new planned task to DOM
                     document.querySelector("#planned").append(newTask);
                 }
             });
@@ -499,14 +511,45 @@ function load_tasks(task_list) {
             document.querySelector("#planned-tasks-count").innerHTML = `${
                 task_list.charAt(0).toUpperCase() + task_list.slice(1)
             } (${planned})`;
-            
+
             // Update num of completed task
             document.getElementById(
                 "complete-tasks-count"
             ).innerHTML = `Completed (${completed})`;
+
+            // Update task count for each task_list
+            updateTasksCount();
         })
         // Catch any error
         .catch((error) => {
             console.error("Error:", error);
         });
+}
+
+function updateTasksCount(task_list) {
+    document.querySelectorAll(".task-count").forEach((task_list) => {
+        const taskList = task_list.innerHTML.toLowerCase();
+        fetch(`/tasks/${taskList}`)
+            .then((response) => response.json())
+            .then((tasks) => {
+                plannedTasksCount = 0;
+                tasks.forEach((task) => {
+                    if (!task.completed) {
+                        plannedTasksCount++;
+                    }
+                });
+                // Update planned task count in each button
+                document.getElementById(
+                    `${taskList}TasksCount`
+                ).innerHTML = `(${plannedTasksCount})`;
+            })
+            // Catch any error
+            .catch((error) => {
+                console.error("Error:", error);
+            });
+    });
+}
+
+function toggleSorting(x) {
+    console.log("toggle sorting");
 }

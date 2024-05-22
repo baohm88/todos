@@ -36,7 +36,7 @@ def task_list(request, task_list):
         return JsonResponse({"error": "Invalid tasks list."}, status=400)
 
     # Return tasks in reverse chronologial order
-    tasks = tasks.order_by("due_date").all()
+    tasks = tasks.all()
     return JsonResponse([task.serialize() for task in tasks], safe=False)
 
 
