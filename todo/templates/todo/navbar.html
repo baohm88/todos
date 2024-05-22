@@ -85,29 +85,31 @@
                 <i
                     class="bi bi-arrow-down-up me-2"
                     style="font-size: x-large; color: blue"
-                    onclick="toggleSorting(this)"
+                    onclick="sortTasks(this)"
                     data-bs-toggle="dropdown"
                 ></i>
                 <ul class="dropdown-menu">
-                    <li class="dropdown-header"><h6>Sort by</h6></li>
+                    <li class="dropdown-header text-center"><b>Sort by</b></li>
                     <li class="dropdown-divider"><hr /></li>
                     <li class="dropdown-item">
-                        <i class="bi bi-star" style="color: blue"></i>
-                        Importance
+                        <p class="sort-tasks" data-task="important">
+                            <i class="bi bi-star"></i> Importance
+                        </p>
                     </li>
                     <li class="dropdown-item">
-                        <i class="bi bi-bell" style="color: blue"></i> Due date
+                        <p class="sort-tasks" data-task="due_date">
+                            <i class="bi bi-bell"></i> Due date
+                        </p>
                     </li>
                     <li class="dropdown-item">
-                        <i
-                            class="bi bi-sort-alpha-down"
-                            style="color: blue"
-                        ></i>
-                        Alphabetically
+                        <p class="sort-tasks" data-task="title">
+                            <i class="bi bi-sort-alpha-down"></i> Alphabetically
+                        </p>
                     </li>
                     <li class="dropdown-item">
-                        <i class="bi bi-database-add" style="color: blue"></i>
-                        Creation date
+                        <p class="sort-tasks" data-task="created_at">
+                            <i class="bi bi-database-add"></i> Creation date
+                        </p>
                     </li>
                 </ul>
 

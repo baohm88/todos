@@ -550,6 +550,10 @@ function updateTasksCount(task_list) {
     });
 }
 
-function toggleSorting(x) {
-    console.log("toggle sorting");
+function sortTasks(task_list, key) {
+    document.querySelectorAll(".sort-tasks").forEach((task_list) => {
+        task_list.onclick = () => {
+            console.log(task_list.dataset.task);
+        };
+    });
 }

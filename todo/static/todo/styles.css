@@ -4,6 +4,10 @@ body {
     background-color: whitesmoke;
 }
 
+ul > li p {
+    margin: 0px;
+}
+
 form {
     margin: 0px;
 }
