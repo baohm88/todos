@@ -23,20 +23,17 @@ def index(request):
 
 
 @login_required
-def task_list(request, task_list):
+def tasks_list(request, task_list, sort_by='due_date'):
+    # query all tasks, order by sort_by
+    tasks = Task.objects.filter(creator=request.user).order_by(sort_by). all()
 
-    # Filter tasks returned based on mailbox
-    if task_list == "today":
-        tasks = Task.objects.filter(creator=request.user, due_date=datetime.date.today())
-    elif task_list == "important":
-        tasks = Task.objects.filter(creator=request.user, important=True)
-    elif task_list == "all":
-        tasks = Task.objects.filter(creator=request.user)
-    else:
-        return JsonResponse({"error": "Invalid tasks list."}, status=400)
-
-    # Return tasks in reverse chronologial order
-    tasks = tasks.all()
+    # filter tasks by task_list
+    if task_list == 'today':
+        tasks = tasks.filter(due_date=datetime.date.today())
+    elif task_list == 'important':
+        tasks = tasks.filter(important=True)
+    
+    # return requested tasks in JSON
     return JsonResponse([task.serialize() for task in tasks], safe=False)
 
 

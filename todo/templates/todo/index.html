@@ -1,20 +1,20 @@
 {% extends "todo/layout.html" %} {% load static %} {% block body %}
 
-<!-- HEADER START -->
-{% include 'todo/navbar.html' %}
-<!-- HEADER END -->
 
-<!-- COLLAPSE START -->
+{% include 'todo/navbar.html' %}
+
+
+
 {% include 'todo/newtaskform.html' %}
-<!-- COLLAPSE END -->
+
 
 <div id="planned" class="border-bottom mb-3"></div>
 
 <div id="complete"></div>
 
-<!-- FOOTER START -->
+
 {% include 'todo/footer.html' %}
-<!-- FOOTER END -->
+
 {% endblock %} {% block script %}
 <script src="{% static 'todo/index.js' %}"></script>
 {% endblock %}

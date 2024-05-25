@@ -13,16 +13,16 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("newTaskForm").onsubmit = addNewTask;
     document
         .getElementById("all")
-        .addEventListener("click", () => load_tasks("all"));
+        .addEventListener("click", () => load_tasks("all", "due_date"));
     document
         .getElementById("important")
-        .addEventListener("click", () => load_tasks("important"));
+        .addEventListener("click", () => load_tasks("important", "due_date"));
     document
         .getElementById("today")
-        .addEventListener("click", () => load_tasks("today"));
+        .addEventListener("click", () => load_tasks("today", "due_date"));
 
     // By default, load all tasks
-    load_tasks("all");
+    load_tasks("all", "due_date");
 });
 
 var tooltipTriggerList = [].slice.call(
@@ -181,7 +181,7 @@ function addNewTask() {
         .then((response) => response.json())
         .then((result) => {
             console.log(result);
-            load_tasks("all");
+            load_tasks("all", "due_date");
         })
         .catch((error) => {
             console.error("Error:", error);
@@ -220,154 +220,13 @@ function toggleImportant(task_id) {
                     important: !task.important,
                 }),
             }).then(() => {
-                load_tasks("all");
+                load_tasks("all", 'due_date');
             });
         });
 }
 
-// function load_tasks(task_list) {
-//     const plannedTasks = document.getElementById("planned");
-//     const completeTasks = document.getElementById("complete");
 
-//     plannedTasks.innerHTML = '<h6 id="planned-tasks-count"></h6>';
-//     completeTasks.innerHTML = '<h6 id="complete-tasks-count"></h6>';
-
-//     fetch(`/tasks/${task_list}`)
-//         .then((response) => response.json())
-//         .then((tasks) => {
-//             completed = 0;
-//             planned = 0;
-//             tasks.forEach((task) => {
-//                 // Create new task -> add class name
-//                 const newTask = document.createElement("div");
-//                 newTask.className =
-//                     "d-flex align-items-center border rounded mb-2 shadow";
-
-//                 if (task.completed) {
-//                     newTask.innerHTML = `
-//                         <div class="p-3">
-//                             <i
-//                                 class="bi bi-check-circle-fill"
-//                                 onclick="toggleComplete(${task.id})"
-//                                 style="font-size: large; color: blue"
-//                             ></i>
-//                         </div>
-//                         <div class="flex-grow-1 p-2">
-//                             <div class="d-flex flex-column">
-//                                 <div class="text-decoration-line-through">${
-//                                     task.title
-//                                 }
-//                                 </div>
-//                                 <div class="d-flex flex-wrap">
-//                                     <div
-//                                         class="me-3"
-//                                         style="font-size: small; color: rgb(255, 0, 0)"
-//                                     >
-//                                         <i class="bi bi-calendar-check"></i>
-//                                         <span>${task.due_date}</span>
-//                                     </div>
-//                                     <div class="me-3" style="font-size: small">
-//                                         <i class="bi bi-bell"></i>
-//                                         <span>${task.reminder_date}</span>
-//                                     </div>
-//                                     <div style="font-size: small">
-//                                         <i class="bi bi-repeat"></i>
-//                                         <span> ${task.repeat}</span>
-//                                     </div>
-//                                 </div>
-//                             </div>
-//                         </div>
-//                         <div class="p-3">
-//                             <i
-//                                 class="${
-//                                     task.important
-//                                         ? "bi bi-star-fill"
-//                                         : "bi bi-star"
-//                                 }"
-//                                 data-bs-toggle="tooltip"
-//                                 style="font-size: large; color: blue"
-//                                 data-bs-placement="bottom"
-//                                 onclick="toggleImportant(${task.id})"
-//                                 title="Mask task as important"
-//                             >
-//                             </i>
-//                         </div>
-//                     `;
-//                     completed++;
-//                     document.querySelector("#complete").append(newTask);
-//                 } else {
-//                     newTask.innerHTML = `
-//                         <div class="p-3">
-//                             <i
-//                                 class="bi bi-circle"
-//                                 onmouseover="showCheckIcon(this)"
-//                                 onmouseout="hideCheckIcon(this)"
-//                                 onclick="toggleComplete(${task.id})"
-//                                 style="font-size: large; color: blue"
-//                             ></i>
-//                         </div>
-//                         <div class="flex-grow-1 p-2">
-//                             <div class="d-flex flex-column">
-//                                 <div>${task.title}</div>
-//                                 <div class="d-flex flex-wrap">
-//                                     <div
-//                                         class="me-3"
-//                                         style="font-size: small; color: rgb(255, 0, 0)"
-//                                     >
-//                                         <i class="bi bi-calendar-check"></i>
-//                                         <span>${task.due_date}</span>
-//                                     </div>
-//                                     <div class="me-3" style="font-size: small">
-//                                         <i class="bi bi-bell"></i>
-//                                         <span>${task.reminder_date}</span>
-//                                     </div>
-//                                     <div style="font-size: small">
-//                                         <i class="bi bi-repeat"></i>
-//                                         <span> ${task.repeat}</span>
-//                                     </div>
-//                                 </div>
-//                             </div>
-//                         </div>
-//                         <div class="p-3">
-//                             <i
-//                                 class="${
-//                                     task.important
-//                                         ? "bi bi-star-fill"
-//                                         : "bi bi-star"
-//                                 }"
-//                                 data-bs-toggle="tooltip"
-//                                 style="font-size: large; color: blue"
-//                                 data-bs-placement="bottom"
-//                                 onclick="toggleImportant(${task.id})"
-//                                 title="Mask task as important"
-//                             >
-//                             </i>
-//                         </div>
-//                     `;
-//                     // Increase num of planned tasks
-//                     planned++;
-//                     // Append new task to DOM
-//                     document.querySelector("#planned").append(newTask);
-//                 }
-//             });
-
-//             // Update num of planned tasks
-//             document.querySelector("#planned-tasks-count").innerHTML = `${
-//                 task_list.charAt(0).toUpperCase() + task_list.slice(1)
-//             } (${planned})`;
-
-//             // Update num of completed task
-//             document.getElementById(
-//                 "complete-tasks-count"
-//             ).innerHTML = `Completed (${completed})`;
-//         })
-//         // Catch any error
-//         .catch((error) => {
-//             console.error("Error:", error);
-//         });
-// }
-
-function load_tasks(task_list) {
+function load_tasks(task_list, sortBy) {
     const plannedTasks = document.getElementById("planned");
     const completeTasks = document.getElementById("complete");
 
@@ -382,7 +241,7 @@ function load_tasks(task_list) {
         </h6>
         <div id="completed-tasks" class="collapse"></div>`;
 
-    fetch(`/tasks/${task_list}`)
+    fetch(`/tasks/${task_list}/${sortBy}`)
         .then((response) => response.json())
         .then((tasks) => {
             completed = 0;
@@ -518,7 +377,7 @@ function load_tasks(task_list) {
             ).innerHTML = `Completed (${completed})`;
 
             // Update task count for each task_list
-            updateTasksCount();
+            updateTasksCount(task_list, sortBy);
         })
         // Catch any error
         .catch((error) => {
@@ -526,10 +385,10 @@ function load_tasks(task_list) {
         });
 }
 
-function updateTasksCount(task_list) {
+function updateTasksCount(task_list, sortBy) {
     document.querySelectorAll(".task-count").forEach((task_list) => {
         const taskList = task_list.innerHTML.toLowerCase();
-        fetch(`/tasks/${taskList}`)
+        fetch(`/tasks/${taskList}/${sortBy}`)
             .then((response) => response.json())
             .then((tasks) => {
                 plannedTasksCount = 0;
@@ -550,7 +409,7 @@ function updateTasksCount(task_list) {
     });
 }
 
-function sortTasks(task_list, key) {
+function sortTasks(task_list, sortBy) {
     document.querySelectorAll(".sort-tasks").forEach((task_list) => {
         task_list.onclick = () => {
             console.log(task_list.dataset.task);
