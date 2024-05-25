@@ -1,4 +1,13 @@
 document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".task-list").forEach((task_list) => {
+        task_list.onclick = () => {
+            document.querySelector(".active")?.classList.remove("active");
+            task_list.classList.add("active");
+            const tasksList = task_list.dataset.taskslist;
+            load_tasks(tasksList, "due_date");
+        };
+    });
+
     // By default, submit button is disabled
     document.querySelector("#addTaskButton").disabled = true;
 
@@ -11,15 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Add task on submit
     document.getElementById("newTaskForm").onsubmit = addNewTask;
-    document
-        .getElementById("all")
-        .addEventListener("click", () => load_tasks("all", "due_date"));
-    document
-        .getElementById("important")
-        .addEventListener("click", () => load_tasks("important", "due_date"));
-    document
-        .getElementById("today")
-        .addEventListener("click", () => load_tasks("today", "due_date"));
 
     // By default, load all tasks
     load_tasks("all", "due_date");
@@ -220,11 +220,10 @@ function toggleImportant(task_id) {
                     important: !task.important,
                 }),
             }).then(() => {
-                load_tasks("all", 'due_date');
+                load_tasks("all", "due_date");
             });
         });
 }
-
 
 function load_tasks(task_list, sortBy) {
     const plannedTasks = document.getElementById("planned");

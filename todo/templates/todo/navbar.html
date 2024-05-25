@@ -63,29 +63,30 @@
     <!-- BUTTON GROUP START -->
     <div id="buttonGroup" class="mb-2">
         <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <button class="btn btn-sm btn-outline-primary" id="all">
+            <div>        
+                <button class="task-list btn btn-outline-primary btn-sm" data-taskslist="all">
                     <i class="bi bi-house-heart"></i>
                     <span class="task-count">All</span>
                     <span id="allTasksCount"></span>
                 </button>
-                <button class="btn btn-sm btn-outline-primary" id="today">
+                <button class="task-list btn btn-outline-primary btn-sm" data-taskslist="today">
                     <i class="bi bi-sun-fill"></i>
                     <span class="task-count">Today</span>
                     <span id="todayTasksCount"></span>
                 </button>
-                <button class="btn btn-sm btn-outline-primary" id="important">
+                <button class="task-list btn btn-outline-primary btn-sm" data-taskslist="important">
                     <i class="bi bi-star-fill"></i>
                     <span class="task-count">Important</span>
                     <span id="importantTasksCount"></span>
                 </button>
+                
             </div>
 
             <div>
                 <i
                     class="bi bi-arrow-down-up me-2"
                     style="font-size: x-large; color: blue"
-                    onclick="sortTasks(this)"
+                    onclick="sortTasks()"
                     data-bs-toggle="dropdown"
                 ></i>
                 <ul class="dropdown-menu">
