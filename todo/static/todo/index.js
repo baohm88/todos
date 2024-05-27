@@ -246,130 +246,92 @@ function load_tasks(task_list, sortBy) {
     fetch(`/tasks/${task_list}/${sortBy}`)
         .then((response) => response.json())
         .then((tasks) => {
-            completed = 0;
-            planned = 0;
+            completedTasksCount = 0;
+            plannedTasksCount = 0;
 
             tasks.forEach((task) => {
                 // Create new task -> add class name
+                const taskId = task.id;
+                const title = task.title;
+                const reminderDate = task.reminder_date;
+                const repeat = task.repeat
+                const important = task.important
                 const dueDate = new Date(task.due_date);
-
                 const newTask = document.createElement("div");
-                const overDue = today > dueDate
+                const overDue = today > dueDate;
+                const isCompleted = task.completed;
+
                 newTask.className =
                     "d-flex align-items-center border rounded mb-3 bg-white shadow-sm";
-
-                if (task.completed) {
-                    newTask.innerHTML = `
-                        <div class="p-3">
-                            <i
-                                class="bi bi-check-circle-fill"
-                                onclick="toggleComplete(${task.id})"
-                                style="font-size: large; color: blue"
-                            ></i>
-                        </div>
-                        <div class="flex-grow-1 p-2">
-                            <div class="d-flex flex-column">
-                                <div class="text-decoration-line-through">${
-                                    task.title
-                                }
+                newTask.innerHTML = `
+                    <div class="p-3">
+                        <i
+                            class="${
+                                isCompleted
+                                    ? "bi bi-check-circle-fill"
+                                    : "bi bi-circle"
+                            }"
+                            onclick="toggleComplete(${taskId})"
+                            style="font-size: large; color: blue"
+                        ></i>
+                    </div>
+                    <div class="flex-grow-1 p-2">
+                        <div class="d-flex flex-column">
+                            <div class="${
+                                isCompleted
+                                    ? "text-decoration-line-through"
+                                    : ""
+                            }">${title}
+                            </div>
+                            <div class="d-flex flex-wrap">
+                                <div
+                                    class="me-3"
+                                    style="${
+                                        overDue
+                                            ? "font-size: small; color: rgb(255, 0, 0)"
+                                            : "rgb(255, 0, 0)"
+                                    }"
+                                >
+                                    <i class="bi bi-calendar-check"></i>
+                                    <span>${ dueDate.toDateString() }</span>
                                 </div>
-                                <div class="d-flex flex-wrap">
-                                    <div
-                                        class="me-3"
-                                        style="font-size: small; color: rgb(255, 0, 0)"
-                                    >
-                                        <i class="bi bi-calendar-check"></i>
-                                        <span>${task.due_date}</span>
-                                    </div>
-                                    <div class="me-3" style="font-size: small">
-                                        <i class="bi bi-bell"></i>
-                                        <span>${task.reminder_date}</span>
-                                    </div>
-                                    <div style="font-size: small">
-                                        <i class="bi bi-repeat"></i>
-                                        <span> ${task.repeat}</span>
-                                    </div>
+                                <div class="me-3" style="font-size: small">
+                                    <i class="bi bi-bell"></i>
+                                    <span>${ reminderDate }</span>
+                                </div>
+                                <div style="font-size: small">
+                                    <i class="bi bi-repeat"></i>
+                                    <span> ${ repeat }</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="p-3">
-                            <i
-                                class="${
-                                    task.important
-                                        ? "bi bi-star-fill"
-                                        : "bi bi-star"
-                                }"
-                                data-bs-toggle="tooltip"
-                                style="font-size: large; color: blue"
-                                data-bs-placement="bottom"
-                                onclick="toggleImportant(${task.id})"
-                                title="Mask task as important"
-                            >
-                            </i>
-                        </div>
-                    `;
+                    </div>
+                    <div class="p-3">
+                        <i
+                            class="${
+                                important
+                                    ? "bi bi-star-fill"
+                                    : "bi bi-star"
+                            }"
+                            data-bs-toggle="tooltip"
+                            style="font-size: large; color: blue"
+                            data-bs-placement="bottom"
+                            onclick="toggleImportant(${ taskId})"
+                            title="Mask task as important"
+                        >
+                        </i>
+                    </div>
+                `;
 
+                if (isCompleted) {
                     // Increase num of completed tasks by 1
-                    completed++;
+                    completedTasksCount++;
 
                     // Append new completed task to DOM
                     document.querySelector("#completed-tasks").append(newTask);
                 } else {
-                    newTask.innerHTML = `
-                            <div class="p-3">
-                                <i
-                                    class="bi bi-circle"
-                                    onmouseover="showCheckIcon(this)"
-                                    onmouseout="hideCheckIcon(this)"
-                                    onclick="toggleComplete(${task.id})"
-                                    style="font-size: large; color: blue"
-                                ></i>
-                            </div>
-                            <div class="flex-grow-1 p-2">
-                                <div class="d-flex flex-column">
-                                    <div>${task.title}</div>
-                                    <div class="d-flex flex-wrap">
-                                        <div
-                                            class="me-3"
-                                            style="${
-                                                overDue
-                                                    ? "color: rgb(255, 0, 0); font-size: small"
-                                                    : "font-size: small"
-                                            }"
-                                        >
-                                            <i class="bi bi-calendar-check"></i>
-                                            <span>${task.due_date}</span>
-                                        </div>
-                                        <div class="me-3" style="font-size: small">
-                                            <i class="bi bi-bell"></i>
-                                            <span>${task.reminder_date}</span>
-                                        </div>
-                                        <div style="font-size: small">
-                                            <i class="bi bi-repeat"></i>
-                                            <span> ${task.repeat}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="p-3">
-                                <i
-                                    class="${
-                                        task.important
-                                            ? "bi bi-star-fill"
-                                            : "bi bi-star"
-                                    }"
-                                    data-bs-toggle="tooltip"
-                                    style="font-size: large; color: blue"
-                                    data-bs-placement="bottom"
-                                    onclick="toggleImportant(${task.id})"
-                                    title="Mask task as important"
-                                >
-                                </i>
-                            </div>
-                        `;
-
                     // Increase num of planned tasks
-                    planned++;
+                    plannedTasksCount++;
 
                     // Append new planned task to DOM
                     document.querySelector("#planned").append(newTask);
@@ -379,12 +341,12 @@ function load_tasks(task_list, sortBy) {
             // Update num of planned tasks
             document.querySelector("#planned-tasks-count").innerHTML = `${
                 task_list.charAt(0).toUpperCase() + task_list.slice(1)
-            } (${planned})`;
+            } (${plannedTasksCount})`;
 
             // Update num of completed task
             document.getElementById(
                 "complete-tasks-count"
-            ).innerHTML = `Completed (${completed})`;
+            ).innerHTML = `Completed (${completedTasksCount})`;
 
             // Update task count for each task_list
             updateTasksCount(task_list, sortBy);
