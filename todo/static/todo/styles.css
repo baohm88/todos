@@ -27,3 +27,7 @@ input:-webkit-autofill:focus {
 input:-internal-autofill-selected {
     background-color: transparent;
 }
+
+#sortBy {
+    float: right;
+}

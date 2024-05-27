@@ -25,6 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // By default, load all tasks
     document.querySelector(".task-list").classList.add("active");
     load_tasks("all", "due_date");
+    
 });
 
 var tooltipTriggerList = [].slice.call(
@@ -205,7 +206,7 @@ function toggleComplete(task_id) {
                     completed: !task.completed,
                 }),
             }).then(() => {
-                load_tasks("all");
+                load_tasks("all", "due_date");
             });
         });
 }
@@ -232,7 +233,8 @@ function load_tasks(task_list, sortBy) {
     const completeTasks = document.getElementById("complete");
     const today = new Date();
 
-    plannedTasks.innerHTML = '<h6 id="planned-tasks-count"></h6>';
+    plannedTasks.innerHTML = `<h6 id="planned-tasks-count"></h6>`;
+
     completeTasks.innerHTML = `
         <h6 data-bs-toggle="collapse" data-bs-target="#completed-tasks">
             <i
@@ -254,8 +256,8 @@ function load_tasks(task_list, sortBy) {
                 const taskId = task.id;
                 const title = task.title;
                 const reminderDate = task.reminder_date;
-                const repeat = task.repeat
-                const important = task.important
+                const repeat = task.repeat;
+                const important = task.important;
                 const dueDate = new Date(task.due_date);
                 const newTask = document.createElement("div");
                 const overDue = today > dueDate;
@@ -263,14 +265,14 @@ function load_tasks(task_list, sortBy) {
 
                 newTask.className =
                     "d-flex align-items-center border rounded mb-3 bg-white shadow-sm";
+
                 newTask.innerHTML = `
                     <div class="p-3">
                         <i
-                            class="${
-                                isCompleted
-                                    ? "bi bi-check-circle-fill"
-                                    : "bi bi-circle"
-                            }"
+                            
+                            class="${isCompleted ? "bi bi-check-circle-fill" : "bi bi-circle"}"
+                            onmouseover="${isCompleted ? "" : "showCheckIcon(this)"}"
+                            onmouseout="${isCompleted ? "" : "hideCheckIcon(this)"}"
                             onclick="toggleComplete(${taskId})"
                             style="font-size: large; color: blue"
                         ></i>
@@ -278,45 +280,35 @@ function load_tasks(task_list, sortBy) {
                     <div class="flex-grow-1 p-2">
                         <div class="d-flex flex-column">
                             <div class="${
-                                isCompleted
-                                    ? "text-decoration-line-through"
-                                    : ""
+                                isCompleted ? "text-decoration-line-through" : ""
                             }">${title}
                             </div>
                             <div class="d-flex flex-wrap">
                                 <div
                                     class="me-3"
-                                    style="${
-                                        overDue
-                                            ? "font-size: small; color: rgb(255, 0, 0)"
-                                            : "rgb(255, 0, 0)"
-                                    }"
+                                    style="${overDue ? "font-size: small; color: rgb(255, 0, 0)" : "font-size: small"}"
                                 >
-                                    <i class="bi bi-calendar-check"></i>
-                                    <span>${ dueDate.toDateString() }</span>
+                                    <i class="${task.due_date ? "bi bi-calendar-check" : ""}"></i>
+                                    <span>${task.due_date ? task.due_date : ""}</span>
                                 </div>
                                 <div class="me-3" style="font-size: small">
-                                    <i class="bi bi-bell"></i>
-                                    <span>${ reminderDate }</span>
+                                    <i class="${reminderDate ? "bi bi-bell" : ""}"></i>
+                                    <span>${reminderDate ? reminderDate : ""}</span>
                                 </div>
                                 <div style="font-size: small">
-                                    <i class="bi bi-repeat"></i>
-                                    <span> ${ repeat }</span>
+                                    <i class="${repeat ? "bi bi-repeat" : ""}"></i>
+                                    <span> ${repeat ? repeat : ""}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="p-3">
                         <i
-                            class="${
-                                important
-                                    ? "bi bi-star-fill"
-                                    : "bi bi-star"
-                            }"
+                            class="${important ? "bi bi-star-fill" : "bi bi-star"}"
                             data-bs-toggle="tooltip"
                             style="font-size: large; color: blue"
                             data-bs-placement="bottom"
-                            onclick="toggleImportant(${ taskId})"
+                            onclick="toggleImportant(${taskId})"
                             title="Mask task as important"
                         >
                         </i>
@@ -324,16 +316,12 @@ function load_tasks(task_list, sortBy) {
                 `;
 
                 if (isCompleted) {
-                    // Increase num of completed tasks by 1
+                    // Increase num of completed tasks -> add to DOM
                     completedTasksCount++;
-
-                    // Append new completed task to DOM
                     document.querySelector("#completed-tasks").append(newTask);
                 } else {
-                    // Increase num of planned tasks
+                    // Increase num of planned tasks -> add to DOM
                     plannedTasksCount++;
-
-                    // Append new planned task to DOM
                     document.querySelector("#planned").append(newTask);
                 }
             });
@@ -385,15 +373,15 @@ function sortTasks() {
     document.querySelectorAll(".sort-tasks").forEach((task_list) => {
         task_list.onclick = () => {
             const sortBy = task_list.dataset.sort_by;
-            console.log(sortBy);
-
             document.querySelectorAll(".task-list").forEach((task_list) => {
                 if (task_list.className.includes("active")) {
                     const taskslist = task_list.dataset.taskslist;
-                    console.log(taskslist);
                     load_tasks(taskslist, sortBy);
+                    
                 }
             });
         };
     });
 }
+
+
