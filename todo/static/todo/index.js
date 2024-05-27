@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // Toggle active class on click on each task list button
     document.querySelectorAll(".task-list").forEach((task_list) => {
         task_list.onclick = () => {
             document.querySelector(".active")?.classList.remove("active");
@@ -22,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("newTaskForm").onsubmit = addNewTask;
 
     // By default, load all tasks
+    document.querySelector(".task-list").classList.add("active");
     load_tasks("all", "due_date");
 });
 
@@ -308,54 +310,108 @@ function load_tasks(task_list, sortBy) {
                     // Append new completed task to DOM
                     document.querySelector("#completed-tasks").append(newTask);
                 } else {
-                    newTask.innerHTML = `
-                        <div class="p-3">
-                            <i
-                                class="bi bi-circle"
-                                onmouseover="showCheckIcon(this)"
-                                onmouseout="hideCheckIcon(this)"
-                                onclick="toggleComplete(${task.id})"
-                                style="font-size: large; color: blue"
-                            ></i>
-                        </div>
-                        <div class="flex-grow-1 p-2">
-                            <div class="d-flex flex-column">
-                                <div>${task.title}</div>
-                                <div class="d-flex flex-wrap">
-                                    <div
-                                        class="me-3"
-                                        style="font-size: small; color: rgb(255, 0, 0)"
-                                    >
-                                        <i class="bi bi-calendar-check"></i>
-                                        <span>${task.due_date}</span>
-                                    </div>
-                                    <div class="me-3" style="font-size: small">
-                                        <i class="bi bi-bell"></i>
-                                        <span>${task.reminder_date}</span>
-                                    </div>
-                                    <div style="font-size: small">
-                                        <i class="bi bi-repeat"></i>
-                                        <span> ${task.repeat}</span>
+                    const today = new Date();
+                    const dueDate = new Date(task.due_date);
+
+                    if (today > dueDate) {
+                        newTask.innerHTML = `
+                            <div class="p-3">
+                                <i
+                                    class="bi bi-circle"
+                                    onmouseover="showCheckIcon(this)"
+                                    onmouseout="hideCheckIcon(this)"
+                                    onclick="toggleComplete(${task.id})"
+                                    style="font-size: large; color: blue"
+                                ></i>
+                            </div>
+                            <div class="flex-grow-1 p-2">
+                                <div class="d-flex flex-column">
+                                    <div>${task.title}</div>
+                                    <div class="d-flex flex-wrap">
+                                        <div
+                                            class="me-3"
+                                            style="color: rgb(255, 0, 0); font-size: small"
+                                        >
+                                            <i class="bi bi-calendar-check"></i>
+                                            <span>${task.due_date}</span>
+                                        </div>
+                                        <div class="me-3" style="font-size: small">
+                                            <i class="bi bi-bell"></i>
+                                            <span>${task.reminder_date}</span>
+                                        </div>
+                                        <div style="font-size: small">
+                                            <i class="bi bi-repeat"></i>
+                                            <span> ${task.repeat}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="p-3">
-                            <i
-                                class="${
-                                    task.important
-                                        ? "bi bi-star-fill"
-                                        : "bi bi-star"
-                                }"
-                                data-bs-toggle="tooltip"
-                                style="font-size: large; color: blue"
-                                data-bs-placement="bottom"
-                                onclick="toggleImportant(${task.id})"
-                                title="Mask task as important"
-                            >
-                            </i>
-                        </div>
-                    `;
+                            <div class="p-3">
+                                <i
+                                    class="${
+                                        task.important
+                                            ? "bi bi-star-fill"
+                                            : "bi bi-star"
+                                    }"
+                                    data-bs-toggle="tooltip"
+                                    style="font-size: large; color: blue"
+                                    data-bs-placement="bottom"
+                                    onclick="toggleImportant(${task.id})"
+                                    title="Mask task as important"
+                                >
+                                </i>
+                            </div>
+                        `;
+                    } else {
+                        newTask.innerHTML = `
+                            <div class="p-3">
+                                <i
+                                    class="bi bi-circle"
+                                    onmouseover="showCheckIcon(this)"
+                                    onmouseout="hideCheckIcon(this)"
+                                    onclick="toggleComplete(${task.id})"
+                                    style="font-size: large; color: blue"
+                                ></i>
+                            </div>
+                            <div class="flex-grow-1 p-2">
+                                <div class="d-flex flex-column">
+                                    <div>${task.title}</div>
+                                    <div class="d-flex flex-wrap">
+                                        <div
+                                            class="me-3"
+                                            style="font-size: small"
+                                        >
+                                            <i class="bi bi-calendar-check"></i>
+                                            <span>${task.due_date}</span>
+                                        </div>
+                                        <div class="me-3" style="font-size: small">
+                                            <i class="bi bi-bell"></i>
+                                            <span>${task.reminder_date}</span>
+                                        </div>
+                                        <div style="font-size: small">
+                                            <i class="bi bi-repeat"></i>
+                                            <span> ${task.repeat}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-3">
+                                <i
+                                    class="${
+                                        task.important
+                                            ? "bi bi-star-fill"
+                                            : "bi bi-star"
+                                    }"
+                                    data-bs-toggle="tooltip"
+                                    style="font-size: large; color: blue"
+                                    data-bs-placement="bottom"
+                                    onclick="toggleImportant(${task.id})"
+                                    title="Mask task as important"
+                                >
+                                </i>
+                            </div>
+                        `;
+                    }
 
                     // Increase num of planned tasks
                     planned++;
@@ -408,10 +464,19 @@ function updateTasksCount(task_list, sortBy) {
     });
 }
 
-function sortTasks(task_list, sortBy) {
+function sortTasks() {
     document.querySelectorAll(".sort-tasks").forEach((task_list) => {
         task_list.onclick = () => {
-            console.log(task_list.dataset.task);
+            const sortBy = task_list.dataset.sort_by;
+            console.log(sortBy);
+
+            document.querySelectorAll(".task-list").forEach((task_list) => {
+                if (task_list.className.includes("active")) {
+                    const taskslist = task_list.dataset.taskslist;
+                    console.log(taskslist);
+                    load_tasks(taskslist, sortBy);
+                }
+            });
         };
     });
 }

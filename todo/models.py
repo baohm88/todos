@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from datetime import datetime
 
 # Create your models here.
 
@@ -22,8 +23,8 @@ class Task(models.Model):
             "id": self.id,
             "creator": self.creator.username,
             "title": self.title,
-            "due_date": self.due_date,
-            "reminder_date": self.reminder_date,
+            "due_date": self.due_date.strftime("%a, %b %d %Y") if self.due_date != None else self.due_date,
+            "reminder_date": self.reminder_date.strftime("%a, %b %d %Y") if self.reminder_date != None else self.due_date,
             "repeat": self.repeat,
             "important": self.important,
             "completed": self.completed,
