@@ -230,6 +230,7 @@ function toggleImportant(task_id) {
 function load_tasks(task_list, sortBy) {
     const plannedTasks = document.getElementById("planned");
     const completeTasks = document.getElementById("complete");
+    const today = new Date();
 
     plannedTasks.innerHTML = '<h6 id="planned-tasks-count"></h6>';
     completeTasks.innerHTML = `
@@ -247,9 +248,13 @@ function load_tasks(task_list, sortBy) {
         .then((tasks) => {
             completed = 0;
             planned = 0;
+
             tasks.forEach((task) => {
                 // Create new task -> add class name
+                const dueDate = new Date(task.due_date);
+
                 const newTask = document.createElement("div");
+                const overDue = today > dueDate
                 newTask.className =
                     "d-flex align-items-center border rounded mb-3 bg-white shadow-sm";
 
@@ -310,11 +315,7 @@ function load_tasks(task_list, sortBy) {
                     // Append new completed task to DOM
                     document.querySelector("#completed-tasks").append(newTask);
                 } else {
-                    const today = new Date();
-                    const dueDate = new Date(task.due_date);
-
-                    if (today > dueDate) {
-                        newTask.innerHTML = `
+                    newTask.innerHTML = `
                             <div class="p-3">
                                 <i
                                     class="bi bi-circle"
@@ -330,7 +331,11 @@ function load_tasks(task_list, sortBy) {
                                     <div class="d-flex flex-wrap">
                                         <div
                                             class="me-3"
-                                            style="color: rgb(255, 0, 0); font-size: small"
+                                            style="${
+                                                overDue
+                                                    ? "color: rgb(255, 0, 0); font-size: small"
+                                                    : "font-size: small"
+                                            }"
                                         >
                                             <i class="bi bi-calendar-check"></i>
                                             <span>${task.due_date}</span>
@@ -362,56 +367,6 @@ function load_tasks(task_list, sortBy) {
                                 </i>
                             </div>
                         `;
-                    } else {
-                        newTask.innerHTML = `
-                            <div class="p-3">
-                                <i
-                                    class="bi bi-circle"
-                                    onmouseover="showCheckIcon(this)"
-                                    onmouseout="hideCheckIcon(this)"
-                                    onclick="toggleComplete(${task.id})"
-                                    style="font-size: large; color: blue"
-                                ></i>
-                            </div>
-                            <div class="flex-grow-1 p-2">
-                                <div class="d-flex flex-column">
-                                    <div>${task.title}</div>
-                                    <div class="d-flex flex-wrap">
-                                        <div
-                                            class="me-3"
-                                            style="font-size: small"
-                                        >
-                                            <i class="bi bi-calendar-check"></i>
-                                            <span>${task.due_date}</span>
-                                        </div>
-                                        <div class="me-3" style="font-size: small">
-                                            <i class="bi bi-bell"></i>
-                                            <span>${task.reminder_date}</span>
-                                        </div>
-                                        <div style="font-size: small">
-                                            <i class="bi bi-repeat"></i>
-                                            <span> ${task.repeat}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="p-3">
-                                <i
-                                    class="${
-                                        task.important
-                                            ? "bi bi-star-fill"
-                                            : "bi bi-star"
-                                    }"
-                                    data-bs-toggle="tooltip"
-                                    style="font-size: large; color: blue"
-                                    data-bs-placement="bottom"
-                                    onclick="toggleImportant(${task.id})"
-                                    title="Mask task as important"
-                                >
-                                </i>
-                            </div>
-                        `;
-                    }
 
                     // Increase num of planned tasks
                     planned++;
