@@ -25,7 +25,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // By default, load all tasks
     document.querySelector(".task-list").classList.add("active");
     load_tasks("all", "due_date");
-    
 });
 
 var tooltipTriggerList = [].slice.call(
@@ -160,24 +159,17 @@ function resetNewTaskForm() {
 
 function addNewTask() {
     const title = document.querySelector("#newTaskTitle").value;
-    const dueDate = document.querySelector("#dueDateInput").value;
-    const reminder = document.querySelector("#reminderDateInput").value;
+    const due_date = document.querySelector("#dueDateInput").value;
+    const reminder_date = document.querySelector("#reminderDateInput").value;
     const repeat = document.querySelector("#repeatInput").value;
 
-    console.log(title);
-    console.log(dueDate);
-    console.log(reminder);
-    console.log(repeat);
     // Send data to backend
     fetch("/tasks/", {
         method: "POST",
-        // headers: {
-        //     "Content-Type": "application/json",
-        // },
         body: JSON.stringify({
             title: title,
-            due_date: dueDate,
-            reminder_date: reminder,
+            due_date: due_date,
+            reminder_date: reminder_date,
             repeat: repeat,
         }),
     })
@@ -269,42 +261,81 @@ function load_tasks(task_list, sortBy) {
                 newTask.innerHTML = `
                     <div class="p-3">
                         <i
-                            
-                            class="${isCompleted ? "bi bi-check-circle-fill" : "bi bi-circle"}"
-                            onmouseover="${isCompleted ? "" : "showCheckIcon(this)"}"
-                            onmouseout="${isCompleted ? "" : "hideCheckIcon(this)"}"
+                            class="${
+                                isCompleted
+                                    ? "bi bi-check-circle-fill"
+                                    : "bi bi-circle"
+                            }"
+                            onmouseover="${
+                                isCompleted ? "" : "showCheckIcon(this)"
+                            }"
+                            onmouseout="${
+                                isCompleted ? "" : "hideCheckIcon(this)"
+                            }"
                             onclick="toggleComplete(${taskId})"
                             style="font-size: large; color: blue"
                         ></i>
                     </div>
                     <div class="flex-grow-1 p-2">
                         <div class="d-flex flex-column">
-                            <div class="${
-                                isCompleted ? "text-decoration-line-through" : ""
-                            }">${title}
+                            <div 
+                                class="${
+                                    isCompleted
+                                        ? "text-decoration-line-through"
+                                        : ""
+                                }"
+                                ondblclick="showTitleEditForm(${taskId})" 
+                                id="task_title_${taskId}"
+                            >${title}
                             </div>
+                            
+                            <form class="form_edit mb-2" id="edit_task_${taskId}">
+                                <textarea class="mb-2" rows="1" id="title_${taskId}">${title}</textarea>
+                                <button type="submit" class="btn btn-primary btn-sm" onclick="reviseTitle(${taskId})" >Save</button>
+                                <button class="btn btn-secondary btn-sm">Cancel</button>
+                                
+                            </form>
+
                             <div class="d-flex flex-wrap">
                                 <div
                                     class="me-3"
-                                    style="${overDue ? "font-size: small; color: rgb(255, 0, 0)" : "font-size: small"}"
+                                    style="${
+                                        overDue
+                                            ? "font-size: small; color: rgb(255, 0, 0)"
+                                            : "font-size: small"
+                                    }"
                                 >
-                                    <i class="${task.due_date ? "bi bi-calendar-check" : ""}"></i>
-                                    <span>${task.due_date ? task.due_date : ""}</span>
+                                    <i class="${
+                                        task.due_date
+                                            ? "bi bi-calendar2-heart-fill"
+                                            : ""
+                                    }"></i>
+                                    <span>${
+                                        task.due_date ? task.due_date : ""
+                                    }</span>
                                 </div>
                                 <div class="me-3" style="font-size: small">
-                                    <i class="${reminderDate ? "bi bi-bell" : ""}"></i>
-                                    <span>${reminderDate ? reminderDate : ""}</span>
+                                    <i class="${
+                                        reminderDate ? "bi bi-bell" : ""
+                                    }"></i>
+                                    <span>${
+                                        reminderDate ? reminderDate : ""
+                                    }</span>
                                 </div>
                                 <div style="font-size: small">
-                                    <i class="${repeat ? "bi bi-repeat" : ""}"></i>
+                                    <i class="${
+                                        repeat ? "bi bi-repeat" : ""
+                                    }"></i>
                                     <span> ${repeat ? repeat : ""}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="p-3">
+                    <div class="${isCompleted ? "p-0" : "p-3"}">
                         <i
-                            class="${important ? "bi bi-star-fill" : "bi bi-star"}"
+                            class="${
+                                isCompleted ? "" : (important ? "bi bi-star-fill" : "bi bi-star")
+                            }"
                             data-bs-toggle="tooltip"
                             style="font-size: large; color: blue"
                             data-bs-placement="bottom"
@@ -313,14 +344,18 @@ function load_tasks(task_list, sortBy) {
                         >
                         </i>
                     </div>
+                    
+                    <div class="${isCompleted ? "p-3" : "p-0"}">
+                        <i class="${isCompleted ? "bi bi-trash3" : "" }" onclick="deleteTask(${taskId})"></i>
+                    </div>
+
+                    
                 `;
 
                 if (isCompleted) {
-                    // Increase num of completed tasks -> add to DOM
                     completedTasksCount++;
                     document.querySelector("#completed-tasks").append(newTask);
                 } else {
-                    // Increase num of planned tasks -> add to DOM
                     plannedTasksCount++;
                     document.querySelector("#planned").append(newTask);
                 }
@@ -373,15 +408,78 @@ function sortTasks() {
     document.querySelectorAll(".sort-tasks").forEach((task_list) => {
         task_list.onclick = () => {
             const sortBy = task_list.dataset.sort_by;
+            
             document.querySelectorAll(".task-list").forEach((task_list) => {
                 if (task_list.className.includes("active")) {
                     const taskslist = task_list.dataset.taskslist;
                     load_tasks(taskslist, sortBy);
-                    
                 }
             });
         };
     });
 }
 
+function showTitleEditForm(task_id) {
+    // Hide all form_edit
+    document.querySelectorAll(".form_edit").forEach((form) => {
+        form.style.display = "none";
+    });
+    // Hide current post's body
+    document.querySelector(`#task_title_${task_id}`).style.display = "none";
+    // Show current edit_post form
+    document.querySelector(`#edit_task_${task_id}`).style.display = "block";
+}
 
+function reviseTitle(task_id) {
+    document.querySelector(`#edit_task_${task_id}`).onsubmit = function () {
+        const newTitle = document.querySelector(`#title_${task_id}`).value;
+        const currentTitle = document.querySelector(`#task_title_${task_id}`);
+
+        console.log(newTitle);
+
+        fetch(`/tasks/edit_task/${task_id}`, {
+            method: "POST",
+            body: JSON.stringify({
+                title: newTitle,
+            }),
+        })
+            .then((response) => response.json())
+            .then((task) => {
+                // update post
+                console.log(task);
+                currentTitle.innerHTML = task.title;
+                document.querySelector(`#edit_task_${task_id}`).style.display =
+                    "none";
+                document.querySelector(`#task_title_${task_id}`).style.display =
+                    "block";
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
+
+        // Stop form from submitting
+        return false;
+    };
+}
+
+function deleteTask(task_id) {
+    console.log("Delete task # " + task_id);
+
+    fetch(`/tasks/delete_task/${task_id}`, {
+        method: "DELETE",
+    })
+        .then((response) => response.json())
+        .then((result) => {
+            // update post
+            console.log(result);
+            document.querySelectorAll(".task-list").forEach((task_list) => {
+                if (task_list.classList.contains("active")) {
+                    const taskList = task_list.dataset.taskslist;
+                    load_tasks(taskList, "due_date");
+                }
+            });
+        })
+        .catch((error) => {
+            console.error("Error:", error);
+        });
+}

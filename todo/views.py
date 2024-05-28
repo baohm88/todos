@@ -80,19 +80,56 @@ def view_task(request, task_id):
     # Update whether email is read or should be archived
     elif request.method == "PUT":
         data = json.loads(request.body)
+        
         if data.get("important") is not None:
             task.important = data["important"]
+        
         if data.get("completed") is not None:
             task.completed = data["completed"]
+        
         task.save()
         return HttpResponse(status=204)
 
-    # Email must be via GET or PUT
-    else:
-        return JsonResponse({
-            "error": "GET or PUT request required."
-        }, status=400)
 
+@csrf_exempt
+def edit_task(request, task_id):
+    if request.method == 'POST':
+        data =  json.loads(request.body)
+        print(data)
+        task = Task.objects.get(pk=task_id)
+        if task.title:
+            task.title = data['title']
+            task.save()
+            return JsonResponse({'message': 'New title received', 'title': data['title']})
+        elif task.due_date:
+            task.due_date = data['due_date']
+            task.save()
+            return JsonResponse({'message': 'New due date received', 'due_date': data['due_date']})
+        elif task.reminder_date:
+            task.reminder_date = data['reminder_date']
+            task.save()
+            return JsonResponse({'message': 'New reminder date received', 'reminder_date': data['reminder_date']})
+        elif task.repeat:
+            task.repeat = data['repeat']
+            task.save()
+            return JsonResponse({'message': 'New repeat received', 'repeat': data['repeat']})
+        else:
+            return JsonResponse({"error": "Task not found."}, status=404)
+        
+    else:
+        return HttpResponseRedirect(reverse('login'))    
+
+
+@csrf_exempt
+def delete_task(request, task_id):
+    if request.user.is_authenticated and request.method == 'DELETE':
+        task = Task.objects.get(pk=task_id)
+        creator =  User.objects.get(pk=request.user.id)
+        if task.creator == creator:
+            task.delete()
+            return JsonResponse({'message': 'Task deleted.'})
+    else:
+        return HttpResponseRedirect(reverse('login'))
 
 
 def login_view(request):
