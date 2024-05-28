@@ -42,9 +42,9 @@ function hideCheckIcon(x) {
     x.className = "bi-circle";
 }
 
-function toggleCaretIcon(x) {
-    x.classList.toggle("bi-caret-right-fill");
-    x.classList.toggle("bi-caret-down-fill");
+function toggleChevronIcon(x) {
+    x.classList.toggle("bi-chevron-down");
+    x.classList.toggle("bi-chevron-right");
 }
 
 function togglePlusIcon(x) {
@@ -231,8 +231,8 @@ function load_tasks(task_list, sortBy) {
         <h6 data-bs-toggle="collapse" data-bs-target="#completed-tasks">
             <i
                 id="complete-tasks-count"
-                class="bi bi-caret-down-fill"
-                onclick="toggleCaretIcon(this)"
+                class="bi bi-chevron-down"
+                onclick="toggleChevronIcon(this)"
             ></i>
         </h6>
         <div id="completed-tasks" class="collapse"></div>`;
@@ -261,17 +261,9 @@ function load_tasks(task_list, sortBy) {
                 newTask.innerHTML = `
                     <div class="p-3">
                         <i
-                            class="${
-                                isCompleted
-                                    ? "bi bi-check-circle-fill"
-                                    : "bi bi-circle"
-                            }"
-                            onmouseover="${
-                                isCompleted ? "" : "showCheckIcon(this)"
-                            }"
-                            onmouseout="${
-                                isCompleted ? "" : "hideCheckIcon(this)"
-                            }"
+                            class="${isCompleted ? "bi bi-check-circle-fill" : "bi bi-circle"}"
+                            onmouseover="${isCompleted ? "" : "showCheckIcon(this)"}"
+                            onmouseout="${isCompleted ? "" : "hideCheckIcon(this)"}"
                             onclick="toggleComplete(${taskId})"
                             style="font-size: large; color: blue"
                         ></i>
@@ -279,53 +271,59 @@ function load_tasks(task_list, sortBy) {
                     <div class="flex-grow-1 p-2">
                         <div class="d-flex flex-column">
                             <div 
-                                class="${
-                                    isCompleted
-                                        ? "text-decoration-line-through"
-                                        : ""
-                                }"
-                                ondblclick="showTitleEditForm(${taskId})" 
-                                id="task_title_${taskId}"
+                                class="${isCompleted ? "text-decoration-line-through" : ""}"
+                                ondblclick="updateTitle(${taskId})"
+                                id="titleGrp_${taskId}"
                             >${title}
                             </div>
                             
-                            <form class="form_edit mb-2" id="edit_task_${taskId}">
-                                <textarea class="mb-2" rows="1" id="title_${taskId}">${title}</textarea>
-                                <button type="submit" class="btn btn-primary btn-sm" onclick="reviseTitle(${taskId})" >Save</button>
-                                <button class="btn btn-secondary btn-sm">Cancel</button>
-                                
+                            <form class="form_edit mb-2" id="form_edit_title_${taskId}">
+                                <textarea class="mb-2" rows="1" id="new_title_${taskId}">${title}</textarea>
+                                <div class="border-top py-1">
+                                    <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                                    <button class="btn btn-secondary btn-sm">Cancel</button>
+                                </div>
                             </form>
 
-                            <div class="d-flex flex-wrap">
-                                <div
-                                    class="me-3"
-                                    style="${
-                                        overDue
-                                            ? "font-size: small; color: rgb(255, 0, 0)"
-                                            : "font-size: small"
-                                    }"
+                            <div class="d-flex flex-wrap" style="font-size: small">
+
+                                <div 
+                                    class="me-3" style="${overDue? "color: rgb(255, 0, 0)" : ""}" 
+                                    id="dueDateGrp_${taskId}" 
+                                    onclick="updateDueDate(${taskId})"
                                 >
-                                    <i class="${
-                                        task.due_date
-                                            ? "bi bi-calendar2-heart-fill"
-                                            : ""
-                                    }"></i>
-                                    <span>${
-                                        task.due_date ? task.due_date : ""
-                                    }</span>
+                                    <i class="${task.due_date ? "bi bi-calendar-check" : ""}"></i>
+                                    <span id="currentDueDate_${taskId}">${task.due_date ? task.due_date : ""}</span>
                                 </div>
-                                <div class="me-3" style="font-size: small">
-                                    <i class="${
-                                        reminderDate ? "bi bi-bell" : ""
-                                    }"></i>
-                                    <span>${
-                                        reminderDate ? reminderDate : ""
-                                    }</span>
+
+                                <form class="form_edit me-2" id="form_edit_due_date_for_task_${taskId}">
+                                    <i class="bi bi-calendar-check"></i>
+                                    <input 
+                                        id="new_task_due_date_${taskId}"
+                                        type="date"
+                                    />
+                                </form>
+
+
+
+
+                                <div class="me-3" id="reminderGrp_${taskId}" onclick="updateReminder(${taskId})">
+                                    <i class="${reminderDate ? "bi bi-bell" : ""}" ></i>
+                                    <span id="currentReminder_${taskId}">${reminderDate ? reminderDate : ""}</span>
                                 </div>
-                                <div style="font-size: small">
-                                    <i class="${
-                                        repeat ? "bi bi-repeat" : ""
-                                    }"></i>
+
+                                <form class="form_edit me-2" id="form_edit_reminder_for_task_${taskId}">
+                                    <i class="bi bi-calendar-check"></i>
+                                    <input 
+                                        id="new_reminder_date_${taskId}"
+                                        type="date"
+                                    />
+                                </form>
+
+
+
+                                <div>
+                                    <i class="${repeat ? "bi bi-repeat" : ""}"></i>
                                     <span> ${repeat ? repeat : ""}</span>
                                 </div>
                             </div>
@@ -333,9 +331,7 @@ function load_tasks(task_list, sortBy) {
                     </div>
                     <div class="${isCompleted ? "p-0" : "p-3"}">
                         <i
-                            class="${
-                                isCompleted ? "" : (important ? "bi bi-star-fill" : "bi bi-star")
-                            }"
+                            class="${isCompleted ? "" : important ? "bi bi-star-fill" : "bi bi-star"}"
                             data-bs-toggle="tooltip"
                             style="font-size: large; color: blue"
                             data-bs-placement="bottom"
@@ -346,7 +342,8 @@ function load_tasks(task_list, sortBy) {
                     </div>
                     
                     <div class="${isCompleted ? "p-3" : "p-0"}">
-                        <i class="${isCompleted ? "bi bi-trash3" : "" }" onclick="deleteTask(${taskId})"></i>
+                        <i class="${isCompleted ? "bi bi-trash3" : ""}" 
+                        onclick="deleteTask(${taskId})"></i>
                     </div>
 
                     
@@ -369,7 +366,7 @@ function load_tasks(task_list, sortBy) {
             // Update num of completed task
             document.getElementById(
                 "complete-tasks-count"
-            ).innerHTML = `Completed (${completedTasksCount})`;
+            ).innerHTML = `&nbsp &nbsp Completed (${completedTasksCount})`;
 
             // Update task count for each task_list
             updateTasksCount(task_list, sortBy);
@@ -408,7 +405,7 @@ function sortTasks() {
     document.querySelectorAll(".sort-tasks").forEach((task_list) => {
         task_list.onclick = () => {
             const sortBy = task_list.dataset.sort_by;
-            
+
             document.querySelectorAll(".task-list").forEach((task_list) => {
                 if (task_list.className.includes("active")) {
                     const taskslist = task_list.dataset.taskslist;
@@ -420,24 +417,22 @@ function sortTasks() {
 }
 
 function showTitleEditForm(task_id) {
-    // Hide all form_edit
-    document.querySelectorAll(".form_edit").forEach((form) => {
-        form.style.display = "none";
-    });
-    // Hide current post's body
-    document.querySelector(`#task_title_${task_id}`).style.display = "none";
-    // Show current edit_post form
-    document.querySelector(`#edit_task_${task_id}`).style.display = "block";
+    
 }
 
-function reviseTitle(task_id) {
-    document.querySelector(`#edit_task_${task_id}`).onsubmit = function () {
-        const newTitle = document.querySelector(`#title_${task_id}`).value;
-        const currentTitle = document.querySelector(`#task_title_${task_id}`);
+function updateTitle(task_id) {
+    const currentTitle = document.querySelector(`#titleGrp_${task_id}`);
+    const formEditTitle = document.querySelector(`#form_edit_title_${task_id}`);
+    currentTitle.style.display = "none";
+    formEditTitle.style.display = "block";
+
+    formEditTitle.onsubmit = function () {
+        const newTitle = document.querySelector(`#new_title_${task_id}`).value;
+        // const currentTitle = document.querySelector(`#titleGrp_${task_id}`);
 
         console.log(newTitle);
 
-        fetch(`/tasks/edit_task/${task_id}`, {
+        fetch(`/tasks/edit_title/${task_id}`, {
             method: "POST",
             body: JSON.stringify({
                 title: newTitle,
@@ -448,10 +443,8 @@ function reviseTitle(task_id) {
                 // update post
                 console.log(task);
                 currentTitle.innerHTML = task.title;
-                document.querySelector(`#edit_task_${task_id}`).style.display =
-                    "none";
-                document.querySelector(`#task_title_${task_id}`).style.display =
-                    "block";
+                formEditTitle.style.display = "none";
+                currentTitle.style.display = "block";
             })
             .catch((error) => {
                 console.error("Error:", error);
@@ -461,6 +454,83 @@ function reviseTitle(task_id) {
         return false;
     };
 }
+
+
+function updateDueDate(task_id) {
+    console.log("Edit due date for task # " + task_id)
+    const dueDateGrp = document.getElementById(`dueDateGrp_${task_id}`);
+    const formEditDuedate = document.getElementById(`form_edit_due_date_for_task_${task_id}`);
+    const newTaskDueDate = document.getElementById(`new_task_due_date_${task_id}`);
+    const currentDueDate = document.getElementById(`currentDueDate_${task_id}`);
+
+    dueDateGrp.style.display = 'none';
+    formEditDuedate.style.display = 'block';
+
+    newTaskDueDate.onchange = () => {
+        const newTaskDueDateInput = document.getElementById(`new_task_due_date_${task_id}`).value;
+        
+        console.log("New due date: " + newTaskDueDateInput)
+        
+        fetch(`/tasks/edit_due_date/${task_id}`, {
+            method: "POST",
+            body: JSON.stringify({
+                due_date: newTaskDueDateInput,
+            }),
+        })
+            .then((response) => response.json())
+            .then((task) => {
+                // update due date
+                // clear edit due date form
+                console.log(task);
+                // const dueDate = new Date(task.due_date)
+                currentDueDate.innerHTML = task.due_date;
+                dueDateGrp.style.display = 'block';
+                formEditDuedate.style.display = 'none';
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
+    }
+}
+
+
+function updateReminder(task_id) {
+    console.log("Update reminder for task # " + task_id)
+    const reminderGrp = document.getElementById(`reminderGrp_${task_id}`);
+    const formEditDuedate = document.getElementById(`form_edit_due_date_for_task_${task_id}`);
+    const newTaskDueDate = document.getElementById(`new_task_due_date_${task_id}`);
+    const currentDueDate = document.getElementById(`currentDueDate_${task_id}`);
+
+    dueDateGrp.style.display = 'none';
+    formEditDuedate.style.display = 'block';
+
+    newTaskDueDate.onchange = () => {
+        const newTaskDueDateInput = document.getElementById(`new_task_due_date_${task_id}`).value;
+        
+        console.log("New due date: " + newTaskDueDateInput)
+        
+        fetch(`/tasks/edit_due_date/${task_id}`, {
+            method: "POST",
+            body: JSON.stringify({
+                due_date: newTaskDueDateInput,
+            }),
+        })
+            .then((response) => response.json())
+            .then((task) => {
+                // update due date
+                // clear edit due date form
+                console.log(task);
+                // const dueDate = new Date(task.due_date)
+                currentDueDate.innerHTML = task.due_date;
+                dueDateGrp.style.display = 'block';
+                formEditDuedate.style.display = 'none';
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
+    }
+}
+
 
 function deleteTask(task_id) {
     console.log("Delete task # " + task_id);

@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.shortcuts import HttpResponse, HttpResponseRedirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
-import datetime
+from datetime import datetime
 
 from .models import User, Task
 
@@ -29,7 +29,7 @@ def tasks_list(request, task_list, sort_by='due_date'):
 
     # filter tasks by task_list
     if task_list == 'today':
-        tasks = tasks.filter(due_date=datetime.date.today())
+        tasks = tasks.filter(due_date=datetime.today())
     elif task_list == 'important':
         tasks = tasks.filter(important=True)
     
@@ -92,7 +92,7 @@ def view_task(request, task_id):
 
 
 @csrf_exempt
-def edit_task(request, task_id):
+def edit_title(request, task_id):
     if request.method == 'POST':
         data =  json.loads(request.body)
         print(data)
@@ -101,15 +101,77 @@ def edit_task(request, task_id):
             task.title = data['title']
             task.save()
             return JsonResponse({'message': 'New title received', 'title': data['title']})
-        elif task.due_date:
+        else:
+            return JsonResponse({"error": "Task not found."}, status=404)
+    else:
+        return HttpResponseRedirect(reverse('login'))    
+
+@csrf_exempt
+def edit_due_date(request, task_id):
+    if request.method == 'POST':
+        data =  json.loads(request.body)
+        print(data)
+        task = Task.objects.get(pk=task_id)
+        
+        if task.due_date:
             task.due_date = data['due_date']
             task.save()
-            return JsonResponse({'message': 'New due date received', 'due_date': data['due_date']})
-        elif task.reminder_date:
+            
+            date_string = task.due_date
+            date_object = datetime.strptime(date_string, '%Y-%m-%d')
+            newDueDate = date_object.strftime('%a, %b %d %Y')
+
+            print(newDueDate)
+            return JsonResponse({'message': 'New due date received', 'due_date': newDueDate})
+        
+        #     return JsonResponse({'message': 'New reminder date received', 'reminder_date': data['reminder_date']})
+        # elif task.repeat:
+        #     task.repeat = data['repeat']
+        #     task.save()
+        #     return JsonResponse({'message': 'New repeat received', 'repeat': data['repeat']})
+        else:
+            return JsonResponse({"error": "Task not found."}, status=404)
+        
+    else:
+        return HttpResponseRedirect(reverse('login'))    
+
+@csrf_exempt
+def edit_reminder_date(request, task_id):
+    if request.method == 'POST':
+        data =  json.loads(request.body)
+        print(data)
+        task = Task.objects.get(pk=task_id)
+        
+        if task.due_date:
             task.reminder_date = data['reminder_date']
             task.save()
-            return JsonResponse({'message': 'New reminder date received', 'reminder_date': data['reminder_date']})
-        elif task.repeat:
+            
+            date_string = task.reminder_date
+            date_object = datetime.strptime(date_string, '%Y-%m-%d')
+            newReminderDate = date_object.strftime('%a, %b %d %Y')
+
+            print(newReminderDate)
+            return JsonResponse({'message': 'New due date received', 'due_date': newReminderDate})
+        #     return JsonResponse({'message': 'New reminder date received', 'reminder_date': data['reminder_date']})
+        # elif task.repeat:
+        #     task.repeat = data['repeat']
+        #     task.save()
+        #     return JsonResponse({'message': 'New repeat received', 'repeat': data['repeat']})
+        else:
+            return JsonResponse({"error": "Task not found."}, status=404)
+        
+    else:
+        return HttpResponseRedirect(reverse('login'))    
+
+
+@csrf_exempt
+def edit_repeat(request, task_id):
+    if request.method == 'POST':
+        data =  json.loads(request.body)
+        print(data)
+        task = Task.objects.get(pk=task_id)
+        
+        if task.repeat:
             task.repeat = data['repeat']
             task.save()
             return JsonResponse({'message': 'New repeat received', 'repeat': data['repeat']})
@@ -117,8 +179,7 @@ def edit_task(request, task_id):
             return JsonResponse({"error": "Task not found."}, status=404)
         
     else:
-        return HttpResponseRedirect(reverse('login'))    
-
+        return HttpResponseRedirect(reverse('login'))  
 
 @csrf_exempt
 def delete_task(request, task_id):
