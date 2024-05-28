@@ -106,6 +106,7 @@ def edit_title(request, task_id):
     else:
         return HttpResponseRedirect(reverse('login'))    
 
+
 @csrf_exempt
 def edit_due_date(request, task_id):
     if request.method == 'POST':
@@ -135,6 +136,7 @@ def edit_due_date(request, task_id):
     else:
         return HttpResponseRedirect(reverse('login'))    
 
+
 @csrf_exempt
 def edit_reminder_date(request, task_id):
     if request.method == 'POST':
@@ -151,12 +153,8 @@ def edit_reminder_date(request, task_id):
             newReminderDate = date_object.strftime('%a, %b %d %Y')
 
             print(newReminderDate)
-            return JsonResponse({'message': 'New due date received', 'due_date': newReminderDate})
-        #     return JsonResponse({'message': 'New reminder date received', 'reminder_date': data['reminder_date']})
-        # elif task.repeat:
-        #     task.repeat = data['repeat']
-        #     task.save()
-        #     return JsonResponse({'message': 'New repeat received', 'repeat': data['repeat']})
+            return JsonResponse({'message': 'New reminder date received', 'reminder_date': newReminderDate})
+        
         else:
             return JsonResponse({"error": "Task not found."}, status=404)
         

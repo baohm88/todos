@@ -305,21 +305,22 @@ function load_tasks(task_list, sortBy) {
                                 </form>
 
 
-
-
-                                <div class="me-3" id="reminderGrp_${taskId}" onclick="updateReminder(${taskId})">
+                                <div 
+                                    class="me-3" 
+                                    id="reminderGrp_${taskId}" 
+                                    onclick="updateReminder(${taskId})"
+                                >
                                     <i class="${reminderDate ? "bi bi-bell" : ""}" ></i>
                                     <span id="currentReminder_${taskId}">${reminderDate ? reminderDate : ""}</span>
                                 </div>
 
-                                <form class="form_edit me-2" id="form_edit_reminder_for_task_${taskId}">
+                                <form class="form_edit me-2" id="form_edit_reminder_${taskId}">
                                     <i class="bi bi-calendar-check"></i>
                                     <input 
-                                        id="new_reminder_date_${taskId}"
+                                        id="new_reminder_${taskId}"
                                         type="date"
                                     />
                                 </form>
-
 
 
                                 <div>
@@ -416,9 +417,6 @@ function sortTasks() {
     });
 }
 
-function showTitleEditForm(task_id) {
-    
-}
 
 function updateTitle(task_id) {
     const currentTitle = document.querySelector(`#titleGrp_${task_id}`);
@@ -467,7 +465,7 @@ function updateDueDate(task_id) {
     formEditDuedate.style.display = 'block';
 
     newTaskDueDate.onchange = () => {
-        const newTaskDueDateInput = document.getElementById(`new_task_due_date_${task_id}`).value;
+        const newTaskDueDateInput = newTaskDueDate.value;
         
         console.log("New due date: " + newTaskDueDateInput)
         
@@ -497,22 +495,22 @@ function updateDueDate(task_id) {
 function updateReminder(task_id) {
     console.log("Update reminder for task # " + task_id)
     const reminderGrp = document.getElementById(`reminderGrp_${task_id}`);
-    const formEditDuedate = document.getElementById(`form_edit_due_date_for_task_${task_id}`);
-    const newTaskDueDate = document.getElementById(`new_task_due_date_${task_id}`);
-    const currentDueDate = document.getElementById(`currentDueDate_${task_id}`);
+    const formEditReminder = document.getElementById(`form_edit_reminder_${task_id}`);
+    const newReminder = document.getElementById(`new_reminder_${task_id}`);
+    const currentReminder = document.getElementById(`currentReminder_${task_id}`);
 
-    dueDateGrp.style.display = 'none';
-    formEditDuedate.style.display = 'block';
+    reminderGrp.style.display = 'none';
+    formEditReminder.style.display = 'block';
 
-    newTaskDueDate.onchange = () => {
-        const newTaskDueDateInput = document.getElementById(`new_task_due_date_${task_id}`).value;
+    newReminder.onchange = () => {
+        const newReminderInput = newReminder.value;
         
-        console.log("New due date: " + newTaskDueDateInput)
+        console.log("New reminder: " + newReminderInput)
         
-        fetch(`/tasks/edit_due_date/${task_id}`, {
+        fetch(`/tasks/edit_reminder_date/${task_id}`, {
             method: "POST",
             body: JSON.stringify({
-                due_date: newTaskDueDateInput,
+                reminder_date: newReminderInput,
             }),
         })
             .then((response) => response.json())
@@ -521,9 +519,9 @@ function updateReminder(task_id) {
                 // clear edit due date form
                 console.log(task);
                 // const dueDate = new Date(task.due_date)
-                currentDueDate.innerHTML = task.due_date;
-                dueDateGrp.style.display = 'block';
-                formEditDuedate.style.display = 'none';
+                currentReminder.innerHTML = task.reminder_date;
+                reminderGrp.style.display = 'block';
+                formEditReminder.style.display = 'none';
             })
             .catch((error) => {
                 console.error("Error:", error);
