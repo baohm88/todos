@@ -16,7 +16,6 @@ urlpatterns = [
     path("tasks/edit_due_date/<int:task_id>", views.edit_due_date, name="edit_due_date"),
     path("tasks/edit_reminder_date/<int:task_id>", views.edit_reminder_date, name="edit_reminder_date"),
     path("tasks/edit_due_date/<int:task_id>", views.edit_due_date, name="edit_due_date"),
-    
     path("tasks/delete_task/<int:task_id>", views.delete_task, name="delete_task"),
     path('tasks/<str:task_list>/<str:sort_by>', views.tasks_list, name='tasks_list'),
 ]

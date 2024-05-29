@@ -27,13 +27,6 @@ document.addEventListener("DOMContentLoaded", () => {
     load_tasks("all", "due_date");
 });
 
-var tooltipTriggerList = [].slice.call(
-    document.querySelectorAll('[data-bs-toggle="tooltip"]')
-);
-var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-    return new bootstrap.Tooltip(tooltipTriggerEl);
-});
-
 function showCheckIcon(x) {
     x.className = "bi-check-circle";
 }
@@ -163,7 +156,6 @@ function addNewTask() {
     const reminder_date = document.querySelector("#reminderDateInput").value;
     const repeat = document.querySelector("#repeatInput").value;
 
-    // Send data to backend
     fetch("/tasks/", {
         method: "POST",
         body: JSON.stringify({
@@ -175,59 +167,72 @@ function addNewTask() {
     })
         .then((response) => response.json())
         .then((result) => {
-            console.log(result);
-            load_tasks("all", "due_date");
+            loadCurrentTaskList();
         })
         .catch((error) => {
             console.error("Error:", error);
         });
-    // Clear new task form + hide modal
+    
     resetNewTaskForm();
     return false;
 }
 
+function loadCurrentTaskList() {
+    document.querySelectorAll(".task-list").forEach((task_list) => {
+        if (task_list.className.includes("active")) {
+            const taskslist = task_list.dataset.taskslist;
+            load_tasks(taskslist, "due_date");
+        }
+    });
+}
+
 function toggleComplete(task_id) {
-    // Fetch task based on its ID
     fetch(`/tasks/${task_id}`)
         .then((response) => response.json())
         .then((task) => {
-            // Update complete status
             fetch(`/tasks/${task_id}`, {
                 method: "PUT",
                 body: JSON.stringify({
                     completed: !task.completed,
                 }),
             }).then(() => {
-                load_tasks("all", "due_date");
+                loadCurrentTaskList();
             });
         });
 }
 
 function toggleImportant(task_id) {
-    // Query task based on its ID
+    const currentImportant = document.getElementById(`currentImportant_${task_id}`);
+    
     fetch(`/tasks/${task_id}`)
         .then((response) => response.json())
         .then((task) => {
-            // Update task's complete status
             fetch(`/tasks/${task_id}`, {
                 method: "PUT",
                 body: JSON.stringify({
                     important: !task.important,
                 }),
             }).then(() => {
-                load_tasks("all", "due_date");
+                if (currentImportant.classList.contains('bi-star-fill')) {
+                    currentImportant.classList.remove('bi-star-fill');
+                    currentImportant.classList.add('bi-star');
+                } else {
+                    currentImportant.classList.remove('bi-star');
+                    currentImportant.classList.add('bi-star-fill');
+                }
+                updateTasksCount('due_date');
             });
         });
 }
 
 function load_tasks(task_list, sortBy) {
-    const plannedTasks = document.getElementById("planned");
-    const completeTasks = document.getElementById("complete");
+    const plannedTasksView = document.getElementById("planned-tasks-view");
+    const completeTasksView = document.getElementById("complete-tasks-view");
     const today = new Date();
 
-    plannedTasks.innerHTML = `<h6 id="planned-tasks-count"></h6>`;
+    plannedTasksView.innerHTML = `<h6 id="planned-tasks-count"></h6>`;
 
-    completeTasks.innerHTML = `
+    completeTasksView.innerHTML = `
         <h6 data-bs-toggle="collapse" data-bs-target="#completed-tasks">
             <i
                 id="complete-tasks-count"
@@ -237,6 +242,8 @@ function load_tasks(task_list, sortBy) {
         </h6>
         <div id="completed-tasks" class="collapse"></div>`;
 
+    const completeTaks = document.querySelector("#completed-tasks");
+
     fetch(`/tasks/${task_list}/${sortBy}`)
         .then((response) => response.json())
         .then((tasks) => {
@@ -244,7 +251,6 @@ function load_tasks(task_list, sortBy) {
             plannedTasksCount = 0;
 
             tasks.forEach((task) => {
-                // Create new task -> add class name
                 const taskId = task.id;
                 const title = task.title;
                 const reminderDate = task.reminder_date;
@@ -271,14 +277,14 @@ function load_tasks(task_list, sortBy) {
                     <div class="flex-grow-1 p-2">
                         <div class="d-flex flex-column">
                             <div 
-                                class="${isCompleted ? "text-decoration-line-through" : ""}"
+                                class="${isCompleted? "text-decoration-line-through": ""}"
                                 ondblclick="updateTitle(${taskId})"
                                 id="titleGrp_${taskId}"
                             >${title}
                             </div>
                             
-                            <form class="form_edit mb-2" id="form_edit_title_${taskId}">
-                                <textarea class="mb-2" rows="1" id="new_title_${taskId}">${title}</textarea>
+                            <form class="form_edit mb-2" id="formEditTitle_${taskId}">
+                                <textarea class="mb-2" rows="1" id="newTitle_${taskId}">${title}</textarea>
                                 <div class="border-top py-1">
                                     <button type="submit" class="btn btn-primary btn-sm">Save</button>
                                     <button class="btn btn-secondary btn-sm">Cancel</button>
@@ -288,33 +294,34 @@ function load_tasks(task_list, sortBy) {
                             <div class="d-flex flex-wrap" style="font-size: small">
 
                                 <div 
-                                    class="me-3" style="${overDue? "color: rgb(255, 0, 0)" : ""}" 
+                                    class="me-3" style="${
+                                        overDue ? "color: rgb(255, 0, 0)" : ""
+                                    }" 
                                     id="dueDateGrp_${taskId}" 
                                     onclick="updateDueDate(${taskId})"
                                 >
-                                    <i class="${task.due_date ? "bi bi-calendar-check" : ""}"></i>
+                                    <i class="${task.due_date ? "bi bi-calendar-check": ""}"></i>
                                     <span id="currentDueDate_${taskId}">${task.due_date ? task.due_date : ""}</span>
                                 </div>
 
-                                <form class="form_edit me-2" id="form_edit_due_date_for_task_${taskId}">
+                                <form class="form_edit me-2" id="formEditDue_${taskId}">
                                     <i class="bi bi-calendar-check"></i>
                                     <input 
-                                        id="new_task_due_date_${taskId}"
+                                        id="newTaskDueDate_${taskId}"
                                         type="date"
                                     />
                                 </form>
 
-
                                 <div 
                                     class="me-3" 
-                                    id="reminderGrp_${taskId}" 
+                                    id="reminderGrp_${taskId}"
                                     onclick="updateReminder(${taskId})"
                                 >
                                     <i class="${reminderDate ? "bi bi-bell" : ""}" ></i>
                                     <span id="currentReminder_${taskId}">${reminderDate ? reminderDate : ""}</span>
                                 </div>
 
-                                <form class="form_edit me-2" id="form_edit_reminder_${taskId}">
+                                <form class="form_edit me-2" id="formEditReminder_${taskId}">
                                     <i class="bi bi-calendar-check"></i>
                                     <input 
                                         id="new_reminder_${taskId}"
@@ -322,22 +329,33 @@ function load_tasks(task_list, sortBy) {
                                     />
                                 </form>
 
-
-                                <div>
+                                <div id="repeatGrp_${taskId}" onclick="updateRepeat(${taskId})" class="me-2">
                                     <i class="${repeat ? "bi bi-repeat" : ""}"></i>
-                                    <span> ${repeat ? repeat : ""}</span>
+                                    <span id="currentRepeat_${taskId}"> ${repeat ? repeat : ""}</span>
                                 </div>
+
+                                <form class="form_edit me-2" id="formEditRepeat_${taskId}">
+                                    <select id="newRepeat_${taskId}">
+                                        <option value="" disabled selected>Select 1 option</option>
+                                        <option value="Daily">Daily</option>
+                                        <option value="Weekly">Weekly</option>
+                                        <option value="Montly">Monthly</option>
+                                        <option value="Yearly">Yearly</option>
+                                    </select>
+                                </form>
+
                             </div>
                         </div>
                     </div>
                     <div class="${isCompleted ? "p-0" : "p-3"}">
                         <i
-                            class="${isCompleted ? "" : important ? "bi bi-star-fill" : "bi bi-star"}"
+                            class="${isCompleted ? "" : important ? "bi bi-star-fill": "bi bi-star"}"
                             data-bs-toggle="tooltip"
                             style="font-size: large; color: blue"
                             data-bs-placement="bottom"
                             onclick="toggleImportant(${taskId})"
                             title="Mask task as important"
+                            id="currentImportant_${taskId}"
                         >
                         </i>
                     </div>
@@ -352,25 +370,40 @@ function load_tasks(task_list, sortBy) {
 
                 if (isCompleted) {
                     completedTasksCount++;
-                    document.querySelector("#completed-tasks").append(newTask);
+                    completeTaks.append(newTask);
                 } else {
                     plannedTasksCount++;
-                    document.querySelector("#planned").append(newTask);
+                    plannedTasksView.append(newTask);
                 }
             });
 
-            // Update num of planned tasks
-            document.querySelector("#planned-tasks-count").innerHTML = `${
-                task_list.charAt(0).toUpperCase() + task_list.slice(1)
-            } (${plannedTasksCount})`;
+            if (plannedTasksCount) {
+                document.querySelector("#planned-tasks-count").innerHTML = `${
+                    task_list.charAt(0).toUpperCase() + task_list.slice(1)
+                } (${plannedTasksCount})`;    
+            } else {
+                plannedTasksView.innerHTML = `<div class="alert alert-warning alert-dismissible fade show">
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                Your have no planned task. Click <i
+                class="bi bi-plus-circle"
+                style="font-size: x-large; color: blue"
+                data-bs-toggle="collapse"
+                data-bs-target="#new-task-form-view"
+                onclick="togglePlusIcon(this)"
+            ></i> to create one.
+                </div>`;
+            }
 
-            // Update num of completed task
-            document.getElementById(
-                "complete-tasks-count"
-            ).innerHTML = `&nbsp &nbsp Completed (${completedTasksCount})`;
+            if (completedTasksCount) {
+                document.getElementById(
+                    "complete-tasks-count"
+                ).innerHTML = `&nbsp &nbsp Completed (${completedTasksCount})`;
+            } else {
+                completeTasksView.innerHTML = '';
+            }
 
-            // Update task count for each task_list
-            updateTasksCount(task_list, sortBy);
+            updateTasksCount(sortBy);
+            // updateTasksCount(task_list, sortBy);
         })
         // Catch any error
         .catch((error) => {
@@ -378,7 +411,8 @@ function load_tasks(task_list, sortBy) {
         });
 }
 
-function updateTasksCount(task_list, sortBy) {
+// function updateTasksCount(task_list, sortBy) {
+function updateTasksCount(sortBy) {
     document.querySelectorAll(".task-count").forEach((task_list) => {
         const taskList = task_list.innerHTML.toLowerCase();
         fetch(`/tasks/${taskList}/${sortBy}`)
@@ -391,9 +425,7 @@ function updateTasksCount(task_list, sortBy) {
                     }
                 });
                 // Update planned task count in each button
-                document.getElementById(
-                    `${taskList}TasksCount`
-                ).innerHTML = `(${plannedTasksCount})`;
+                document.getElementById(`${taskList}TasksCount`).innerHTML = `(${plannedTasksCount})`;
             })
             // Catch any error
             .catch((error) => {
@@ -417,20 +449,16 @@ function sortTasks() {
     });
 }
 
-
-function updateTitle(task_id) {
-    const currentTitle = document.querySelector(`#titleGrp_${task_id}`);
-    const formEditTitle = document.querySelector(`#form_edit_title_${task_id}`);
+function updateTitle(taskID) {
+    const currentTitle = document.getElementById(`titleGrp_${taskID}`);
+    const formEditTitle = document.getElementById(`formEditTitle_${taskID}`);
     currentTitle.style.display = "none";
     formEditTitle.style.display = "block";
 
     formEditTitle.onsubmit = function () {
-        const newTitle = document.querySelector(`#new_title_${task_id}`).value;
-        // const currentTitle = document.querySelector(`#titleGrp_${task_id}`);
+        const newTitle = document.getElementById(`newTitle_${taskID}`).value;
 
-        console.log(newTitle);
-
-        fetch(`/tasks/edit_title/${task_id}`, {
+        fetch(`/tasks/edit_title/${taskID}`, {
             method: "POST",
             body: JSON.stringify({
                 title: newTitle,
@@ -438,8 +466,6 @@ function updateTitle(task_id) {
         })
             .then((response) => response.json())
             .then((task) => {
-                // update post
-                console.log(task);
                 currentTitle.innerHTML = task.title;
                 formEditTitle.style.display = "none";
                 currentTitle.style.display = "block";
@@ -453,23 +479,19 @@ function updateTitle(task_id) {
     };
 }
 
+function updateDueDate(taskID) {
+    const dueDateGrp = document.getElementById(`dueDateGrp_${taskID}`);
+    const formEditDue = document.getElementById(`formEditDue_${taskID}`);
+    const newTaskDueDate = document.getElementById(`newTaskDueDate_${taskID}`);
+    const currentDueDate = document.getElementById(`currentDueDate_${taskID}`);
 
-function updateDueDate(task_id) {
-    console.log("Edit due date for task # " + task_id)
-    const dueDateGrp = document.getElementById(`dueDateGrp_${task_id}`);
-    const formEditDuedate = document.getElementById(`form_edit_due_date_for_task_${task_id}`);
-    const newTaskDueDate = document.getElementById(`new_task_due_date_${task_id}`);
-    const currentDueDate = document.getElementById(`currentDueDate_${task_id}`);
-
-    dueDateGrp.style.display = 'none';
-    formEditDuedate.style.display = 'block';
+    dueDateGrp.style.display = "none";
+    formEditDue.style.display = "block";
 
     newTaskDueDate.onchange = () => {
         const newTaskDueDateInput = newTaskDueDate.value;
-        
-        console.log("New due date: " + newTaskDueDateInput)
-        
-        fetch(`/tasks/edit_due_date/${task_id}`, {
+
+        fetch(`/tasks/edit_due_date/${taskID}`, {
             method: "POST",
             body: JSON.stringify({
                 due_date: newTaskDueDateInput,
@@ -477,36 +499,28 @@ function updateDueDate(task_id) {
         })
             .then((response) => response.json())
             .then((task) => {
-                // update due date
-                // clear edit due date form
-                console.log(task);
-                // const dueDate = new Date(task.due_date)
                 currentDueDate.innerHTML = task.due_date;
-                dueDateGrp.style.display = 'block';
-                formEditDuedate.style.display = 'none';
+                dueDateGrp.style.display = "block";
+                formEditDue.style.display = "none";
             })
             .catch((error) => {
                 console.error("Error:", error);
             });
-    }
+    };
 }
 
-
 function updateReminder(task_id) {
-    console.log("Update reminder for task # " + task_id)
     const reminderGrp = document.getElementById(`reminderGrp_${task_id}`);
-    const formEditReminder = document.getElementById(`form_edit_reminder_${task_id}`);
+    const formEditReminder = document.getElementById(`formEditReminder_${task_id}`);
     const newReminder = document.getElementById(`new_reminder_${task_id}`);
     const currentReminder = document.getElementById(`currentReminder_${task_id}`);
 
-    reminderGrp.style.display = 'none';
-    formEditReminder.style.display = 'block';
+    reminderGrp.style.display = "none";
+    formEditReminder.style.display = "block";
 
     newReminder.onchange = () => {
         const newReminderInput = newReminder.value;
-        
-        console.log("New reminder: " + newReminderInput)
-        
+
         fetch(`/tasks/edit_reminder_date/${task_id}`, {
             method: "POST",
             body: JSON.stringify({
@@ -515,31 +529,54 @@ function updateReminder(task_id) {
         })
             .then((response) => response.json())
             .then((task) => {
-                // update due date
-                // clear edit due date form
-                console.log(task);
-                // const dueDate = new Date(task.due_date)
                 currentReminder.innerHTML = task.reminder_date;
-                reminderGrp.style.display = 'block';
-                formEditReminder.style.display = 'none';
+                reminderGrp.style.display = "block";
+                formEditReminder.style.display = "none";
             })
             .catch((error) => {
                 console.error("Error:", error);
             });
-    }
+    };
 }
 
+function updateRepeat(task_id) {
+    const formEditRepeat = document.querySelector(`#formEditRepeat_${task_id}`);
+    const currentRepeat = document.querySelector(`#currentRepeat_${task_id}`);
+    const newRepeat = document.querySelector(`#newRepeat_${task_id}`);
+    currentRepeat.style.display = "none";
+    formEditRepeat.style.display = "block";
+
+    newRepeat.onchange = function () {
+        const newRpeat = newRepeat.value;
+
+        fetch(`/tasks/edit_repeat/${task_id}`, {
+            method: "POST",
+            body: JSON.stringify({
+                repeat: newRpeat,
+            }),
+        })
+            .then((response) => response.json())
+            .then((task) => {
+                currentRepeat.innerHTML = task.repeat;
+                formEditRepeat.style.display = "none";
+                currentRepeat.style.display = "inline";
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
+
+        // Stop form from submitting
+        return false;
+    };
+}
 
 function deleteTask(task_id) {
-    console.log("Delete task # " + task_id);
 
     fetch(`/tasks/delete_task/${task_id}`, {
         method: "DELETE",
     })
         .then((response) => response.json())
-        .then((result) => {
-            // update post
-            console.log(result);
+        .then((result) => {            
             document.querySelectorAll(".task-list").forEach((task_list) => {
                 if (task_list.classList.contains("active")) {
                     const taskList = task_list.dataset.taskslist;

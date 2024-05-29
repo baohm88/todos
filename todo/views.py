@@ -12,28 +12,21 @@ from .models import User, Task
 
 
 def index(request):
-
-    # Authenticated users view their inbox
     if request.user.is_authenticated:
         return render(request, "todo/index.html")
 
-    # Everyone else is prompted to sign in
     else:
         return HttpResponseRedirect(reverse("login"))
 
 
 @login_required
 def tasks_list(request, task_list, sort_by='due_date'):
-    # query all tasks, order by sort_by
     tasks = Task.objects.filter(creator=request.user).order_by(sort_by). all()
-
-    # filter tasks by task_list
     if task_list == 'today':
         tasks = tasks.filter(due_date=datetime.today())
     elif task_list == 'important':
         tasks = tasks.filter(important=True)
-    
-    # return requested tasks in JSON
+
     return JsonResponse([task.serialize() for task in tasks], safe=False)
 
 
@@ -45,13 +38,13 @@ def create_task(request):
         return JsonResponse({"error": "POST request required."}, status=400)
     data = json.loads(request.body)
     
-    # Get contents of task
+    # Get task's data
     title = data.get('title')
     due_date = data.get('due_date')
     reminder_date = data.get('reminder_date')
     repeat = data.get('repeat')
     
-    # Create new task and save
+    # create a new task
     task = Task(
         creator= request.user,
         title = title,
@@ -66,18 +59,14 @@ def create_task(request):
 @csrf_exempt
 @login_required
 def view_task(request, task_id):
-
-    # Query for requested task
     try:
         task = Task.objects.get(creator=request.user, pk=task_id)
     except Task.DoesNotExist:
         return JsonResponse({"error": "Task not found."}, status=404)
 
-    # Return task contents
     if request.method == "GET":
         return JsonResponse(task.serialize())
 
-    # Update whether email is read or should be archived
     elif request.method == "PUT":
         data = json.loads(request.body)
         
@@ -88,7 +77,8 @@ def view_task(request, task_id):
             task.completed = data["completed"]
         
         task.save()
-        return HttpResponse(status=204)
+
+        return JsonResponse({'message': 'Importance updated.'})
 
 
 @csrf_exempt
@@ -117,19 +107,12 @@ def edit_due_date(request, task_id):
         if task.due_date:
             task.due_date = data['due_date']
             task.save()
-            
+            # Create date object
             date_string = task.due_date
             date_object = datetime.strptime(date_string, '%Y-%m-%d')
-            newDueDate = date_object.strftime('%a, %b %d %Y')
-
-            print(newDueDate)
-            return JsonResponse({'message': 'New due date received', 'due_date': newDueDate})
+            new_due_date = date_object.strftime('%a, %b %d %Y')
+            return JsonResponse({'message': 'New due date received', 'due_date': new_due_date})
         
-        #     return JsonResponse({'message': 'New reminder date received', 'reminder_date': data['reminder_date']})
-        # elif task.repeat:
-        #     task.repeat = data['repeat']
-        #     task.save()
-        #     return JsonResponse({'message': 'New repeat received', 'repeat': data['repeat']})
         else:
             return JsonResponse({"error": "Task not found."}, status=404)
         
@@ -193,8 +176,6 @@ def delete_task(request, task_id):
 
 def login_view(request):
     if request.method == "POST":
-
-        # Attempt to sign user in
         username = request.POST["username"]
         password = request.POST["password"]
         user = authenticate(request, username=username, password=password)
