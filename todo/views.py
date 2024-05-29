@@ -14,7 +14,6 @@ from .models import User, Task
 def index(request):
     if request.user.is_authenticated:
         return render(request, "todo/index.html")
-
     else:
         return HttpResponseRedirect(reverse("login"))
 
@@ -76,91 +75,86 @@ def view_task(request, task_id):
         if data.get("completed") is not None:
             task.completed = data["completed"]
         
+        if data.get("due_date") is not None:
+            task.due_date = data["due_date"]
+        
+        if data.get("reminder_date") is not None:
+            task.reminder_date = data["reminder_date"]
+        
+        if data.get("repeat") is not None:
+            task.repeat = data["repeat"]
+        
         task.save()
 
-        return JsonResponse({'message': 'Importance updated.'})
+        return JsonResponse({'message': 'Task has been updated.'})
 
 
-@csrf_exempt
-def edit_title(request, task_id):
-    if request.method == 'POST':
-        data =  json.loads(request.body)
-        print(data)
-        task = Task.objects.get(pk=task_id)
-        if task.title:
-            task.title = data['title']
-            task.save()
-            return JsonResponse({'message': 'New title received', 'title': data['title']})
-        else:
-            return JsonResponse({"error": "Task not found."}, status=404)
-    else:
-        return HttpResponseRedirect(reverse('login'))    
+# @csrf_exempt
+# def edit_title(request, task_id):
+#     if request.method == 'POST':
+#         data =  json.loads(request.body)
+#         task = Task.objects.get(pk=task_id)
+#         if task is not None:
+#             task.title = data['title']
+#             task.save()
+#             return JsonResponse({'message': 'New title received', 'title': data['title']})
+#         else:
+#             return JsonResponse({"error": "Task not found."}, status=404)
+#     else:
+#         return HttpResponseRedirect(reverse('login'))    
 
 
-@csrf_exempt
-def edit_due_date(request, task_id):
-    if request.method == 'POST':
-        data =  json.loads(request.body)
-        print(data)
-        task = Task.objects.get(pk=task_id)
-        
-        if task.due_date:
-            task.due_date = data['due_date']
-            task.save()
-            # Create date object
-            date_string = task.due_date
-            date_object = datetime.strptime(date_string, '%Y-%m-%d')
-            new_due_date = date_object.strftime('%a, %b %d %Y')
-            return JsonResponse({'message': 'New due date received', 'due_date': new_due_date})
-        
-        else:
-            return JsonResponse({"error": "Task not found."}, status=404)
-        
-    else:
-        return HttpResponseRedirect(reverse('login'))    
+# @csrf_exempt
+# def edit_due_date(request, task_id):
+#     if request.method == 'POST':
+#         data =  json.loads(request.body)
+#         task = Task.objects.get(pk=task_id)
+#         if task is not None:
+#             task.due_date = data['due_date']
+#             task.save()
+#             date_string = task.due_date
+#             date_object = datetime.strptime(date_string, '%Y-%m-%d')
+#             new_due_date = date_object.strftime('%a, %b %d %Y')
+#             return JsonResponse({'message': 'New due date received', 'due_date': new_due_date})
+#         else:
+#             return JsonResponse({"error": "Task not found."}, status=404)
+#     else:
+#         return HttpResponseRedirect(reverse('login'))    
 
 
-@csrf_exempt
-def edit_reminder_date(request, task_id):
-    if request.method == 'POST':
-        data =  json.loads(request.body)
-        print(data)
-        task = Task.objects.get(pk=task_id)
-        
-        if task.due_date:
-            task.reminder_date = data['reminder_date']
-            task.save()
-            
-            date_string = task.reminder_date
-            date_object = datetime.strptime(date_string, '%Y-%m-%d')
-            newReminderDate = date_object.strftime('%a, %b %d %Y')
-
-            print(newReminderDate)
-            return JsonResponse({'message': 'New reminder date received', 'reminder_date': newReminderDate})
-        
-        else:
-            return JsonResponse({"error": "Task not found."}, status=404)
-        
-    else:
-        return HttpResponseRedirect(reverse('login'))    
+# @csrf_exempt
+# def edit_reminder_date(request, task_id):
+#     if request.method == 'POST':
+#         data =  json.loads(request.body)
+#         print(data)
+#         task = Task.objects.get(pk=task_id)
+#         if task is not None:
+#             task.reminder_date = data['reminder_date']
+#             task.save()
+#             date_string = task.reminder_date
+#             date_object = datetime.strptime(date_string, '%Y-%m-%d')
+#             new_reminder_date = date_object.strftime('%a, %b %d %Y')
+#             print(new_reminder_date)
+#             return JsonResponse({'message': 'New reminder date received', 'reminder_date': new_reminder_date})
+#         else:
+#             return JsonResponse({"error": "Task not found."}, status=404)
+#     else:
+#         return HttpResponseRedirect(reverse('login'))    
 
 
-@csrf_exempt
-def edit_repeat(request, task_id):
-    if request.method == 'POST':
-        data =  json.loads(request.body)
-        print(data)
-        task = Task.objects.get(pk=task_id)
-        
-        if task.repeat:
-            task.repeat = data['repeat']
-            task.save()
-            return JsonResponse({'message': 'New repeat received', 'repeat': data['repeat']})
-        else:
-            return JsonResponse({"error": "Task not found."}, status=404)
-        
-    else:
-        return HttpResponseRedirect(reverse('login'))  
+# @csrf_exempt
+# def edit_repeat(request, task_id):
+#     if request.method == 'POST':
+#         data =  json.loads(request.body)
+#         task = Task.objects.get(pk=task_id)
+#         if task is not None:
+#             task.repeat = data['repeat']
+#             task.save()
+#             return JsonResponse({'message': 'New repeat received', 'repeat': data['repeat']})
+#         else:
+#             return JsonResponse({"error": "Task not found."}, status=404)
+#     else:
+#         return HttpResponseRedirect(reverse('login'))  
 
 @csrf_exempt
 def delete_task(request, task_id):

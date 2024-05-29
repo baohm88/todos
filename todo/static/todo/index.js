@@ -48,8 +48,8 @@ function toggleChevronIcon(x) {
 }
 
 function togglePlusIcon(x) {
-    x.classList.toggle("bi-plus-circle");
-    x.classList.toggle("bi-dash-circle");
+    x.classList.toggle("bi-plus-circle-fill");
+    x.classList.toggle("bi-dash-circle-fill");
     resetNewTaskForm();
 }
 
@@ -240,19 +240,16 @@ function filterTasks(title) {
     fetch(`/tasks/all/due_date`)
             .then((response) => response.json())
             .then((tasksFromServer) => {
-                console.log(tasksFromServer);
                 let filteredTasks = []
                 tasksFromServer.forEach(task => {
                     let tastTitle = task.title;
                     tastTitle =  tastTitle.toLowerCase()
                     if (tastTitle.includes(title)) {
-                        console.log(tastTitle);
                         filteredTasks.push(task)
                     }
                 });
                 renderTasks(filteredTasks);
             })
-            // Catch any error
             .catch((error) => {
                 console.error("Error:", error);
             });
@@ -273,10 +270,9 @@ function renderTasks(tasks) {
                 onclick="toggleChevronIcon(this)"
             ></i>
         </h6>
-        <div id="completed-tasks" class="collapse"></div>`;
+        <div id="completed-tasks" class="collapse border-bottom"></div>`;
 
     const completeTaks = document.querySelector("#completed-tasks");
-
 
     completedTasksCount = 0;
     plannedTasksCount = 0;
@@ -287,13 +283,13 @@ function renderTasks(tasks) {
         const reminderDate = task.reminder_date;
         const repeat = task.repeat;
         const important = task.important;
+        const hasNoDueDate = task.due_date == null;
         const dueDate = new Date(task.due_date);
         const newTask = document.createElement("div");
         const overDue = today > dueDate;
         const isCompleted = task.completed;
 
-        newTask.className =
-            "d-flex align-items-center border rounded mb-3 bg-white shadow-sm";
+        newTask.className = "d-flex align-items-center border rounded mb-3 bg-white shadow-sm";
 
         newTask.innerHTML = `
             <div class="p-3">
@@ -325,13 +321,12 @@ function renderTasks(tasks) {
                     <div class="d-flex flex-wrap" style="font-size: small">
 
                         <div 
-                            class="me-3" style="${
-                                overDue ? "color: rgb(255, 0, 0)" : ""
-                            }" 
+                            class="me-3" style="${hasNoDueDate ? "" : overDue ? "color: rgb(255, 0, 0)" : ""}" 
                             id="dueDateGrp_${taskId}" 
                             onclick="updateDueDate(${taskId})"
                         >
-                            <i class="${task.due_date ? "bi bi-calendar-check": ""}"></i>
+                            <!--  i class="${task.due_date ? "bi bi-calendar-check" : ""}"></i> -->
+                            <i class="bi bi-calendar-check"></i>
                             <span id="currentDueDate_${taskId}">${task.due_date ? task.due_date : ""}</span>
                         </div>
 
@@ -348,7 +343,8 @@ function renderTasks(tasks) {
                             id="reminderGrp_${taskId}"
                             onclick="updateReminder(${taskId})"
                         >
-                            <i class="${reminderDate ? "bi bi-bell" : ""}" ></i>
+                            <!-- <i class="${reminderDate ? "bi bi-bell" : ""}" ></i> -->
+                            <i class="bi bi-bell" ></i>
                             <span id="currentReminder_${taskId}">${reminderDate ? reminderDate : ""}</span>
                         </div>
 
@@ -361,7 +357,8 @@ function renderTasks(tasks) {
                         </form>
 
                         <div id="repeatGrp_${taskId}" onclick="updateRepeat(${taskId})" class="me-2">
-                            <i class="${repeat ? "bi bi-repeat" : ""}"></i>
+                            <!-- <i class="${repeat ? "bi bi-repeat" : ""}"></i> -->
+                            <i class="bi bi-repeat"></i>
                             <span id="currentRepeat_${taskId}"> ${repeat ? repeat : ""}</span>
                         </div>
 
@@ -399,7 +396,7 @@ function renderTasks(tasks) {
             
         `;
 
-        newTask.setAttribute('id', `task_${task.id}`);
+        newTask.setAttribute('id', `task_${taskId}`);
 
         if (isCompleted) {
             completedTasksCount++;
@@ -437,14 +434,10 @@ function renderTasks(tasks) {
 }
 
 function load_tasks(task_list, sortBy) {
-    // const plannedTasksView = document.getElementById("planned-tasks-view");
-    // const completeTasksView = document.getElementById("complete-tasks-view");
-
-
     fetch(`/tasks/${task_list}/${sortBy}`)
         .then((response) => response.json())
-        .then((tasks) => {
-            renderTasks(tasks);
+        .then((tasksFromServer) => {
+            renderTasks(tasksFromServer);
             updateTasksCount();
         })
         .catch((error) => {
@@ -497,23 +490,20 @@ function updateTitle(taskID) {
     formEditTitle.onsubmit = function () {
         const newTitle = document.getElementById(`newTitle_${taskID}`).value;
 
-        fetch(`/tasks/edit_title/${taskID}`, {
-            method: "POST",
+        fetch(`/tasks/${taskID}`, {
+            method: "PUT",
             body: JSON.stringify({
                 title: newTitle,
             }),
+        }).then((response) => response.json())
+        .then((task) => {
+            currentTitle.innerHTML = newTitle;
+            formEditTitle.style.display = "none";
+            currentTitle.style.display = "block";
         })
-            .then((response) => response.json())
-            .then((task) => {
-                currentTitle.innerHTML = task.title;
-                formEditTitle.style.display = "none";
-                currentTitle.style.display = "block";
-            })
-            .catch((error) => {
-                console.error("Error:", error);
-            });
-
-        // Stop form from submitting
+        .catch((error) => {
+            console.error("Error:", error);
+        });
         return false;
     };
 }
@@ -529,22 +519,23 @@ function updateDueDate(taskID) {
 
     newTaskDueDate.onchange = () => {
         const newTaskDueDateInput = newTaskDueDate.value;
+        const date = new Date(newTaskDueDateInput);
+        const newdueDate = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: '2-digit', year: 'numeric' });
 
-        fetch(`/tasks/edit_due_date/${taskID}`, {
-            method: "POST",
+        fetch(`/tasks/${taskID}`, {
+            method: "PUT",
             body: JSON.stringify({
                 due_date: newTaskDueDateInput,
             }),
+        }).then((response) => response.json())
+        .then((task) => {
+            currentDueDate.innerHTML = newdueDate;
+            dueDateGrp.style.display = "block";
+            formEditDue.style.display = "none";
         })
-            .then((response) => response.json())
-            .then((task) => {
-                currentDueDate.innerHTML = task.due_date;
-                dueDateGrp.style.display = "block";
-                formEditDue.style.display = "none";
-            })
-            .catch((error) => {
-                console.error("Error:", error);
-            });
+        .catch((error) => {
+            console.error("Error:", error);
+        });
     };
 }
 
@@ -559,22 +550,23 @@ function updateReminder(taskID) {
 
     newReminder.onchange = () => {
         const newReminderInput = newReminder.value;
+        const date = new Date(newReminderInput);
+        const newReminderDate = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: '2-digit', year: 'numeric' });
 
-        fetch(`/tasks/edit_reminder_date/${taskID}`, {
-            method: "POST",
+        fetch(`/tasks/${taskID}`, {
+            method: "PUT",
             body: JSON.stringify({
                 reminder_date: newReminderInput,
             }),
+        }).then((response) => response.json())
+        .then((task) => {
+            currentReminder.innerHTML = newReminderDate;
+            reminderGrp.style.display = "block";
+            formEditReminder.style.display = "none";
         })
-            .then((response) => response.json())
-            .then((task) => {
-                currentReminder.innerHTML = task.reminder_date;
-                reminderGrp.style.display = "block";
-                formEditReminder.style.display = "none";
-            })
-            .catch((error) => {
-                console.error("Error:", error);
-            });
+        .catch((error) => {
+            console.error("Error:", error);
+        });
     };
 }
 
@@ -588,23 +580,20 @@ function updateRepeat(taskID) {
     newRepeat.onchange = function () {
         const newRpeat = newRepeat.value;
 
-        fetch(`/tasks/edit_repeat/${taskID}`, {
-            method: "POST",
+        fetch(`/tasks/${taskID}`, {
+            method: "PUT",
             body: JSON.stringify({
                 repeat: newRpeat,
             }),
+        }).then((response) => response.json())
+        .then((task) => {
+            currentRepeat.innerHTML = newRpeat;
+            formEditRepeat.style.display = "none";
+            currentRepeat.style.display = "inline";
         })
-            .then((response) => response.json())
-            .then((task) => {
-                currentRepeat.innerHTML = task.repeat;
-                formEditRepeat.style.display = "none";
-                currentRepeat.style.display = "inline";
-            })
-            .catch((error) => {
-                console.error("Error:", error);
-            });
-
-        // Stop form from submitting
+        .catch((error) => {
+            console.error("Error:", error);
+        });
         return false;
     };
 }
