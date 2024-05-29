@@ -19,6 +19,13 @@ document.addEventListener("DOMContentLoaded", () => {
         else document.querySelector("#addTaskButton").disabled = true;
     };
 
+    document.getElementById('search').
+    onkeyup = () => {
+        let title = document.getElementById('search').value;
+        title = title.toLowerCase();
+        filterTasks(title);
+    }
+
     // Add task on submit
     document.getElementById("newTaskForm").onsubmit = addNewTask;
 
@@ -220,9 +227,31 @@ function toggleImportant(task_id) {
                     currentImportant.classList.remove('bi-star');
                     currentImportant.classList.add('bi-star-fill');
                 }
-                updateTasksCount('due_date');
+                updateTasksCount();
             });
         });
+}
+
+function filterTasks(title) {
+    fetch(`/tasks/all/due_date`)
+            .then((response) => response.json())
+            .then((tasksFromServer) => {
+                console.log(tasksFromServer);
+                let filteredTasks = []
+                tasksFromServer.forEach(task => {
+                    let tastTitle = task.title;
+                    tastTitle =  tastTitle.toLowerCase()
+                    if (tastTitle.includes(title)) {
+                        console.log(tastTitle);
+                        filteredTasks.push(task)
+                    }
+                });
+                load_tasks(filteredTasks, 'due_date');
+            })
+            // Catch any error
+            .catch((error) => {
+                console.error("Error:", error);
+            });
 }
 
 function load_tasks(task_list, sortBy) {
@@ -368,6 +397,8 @@ function load_tasks(task_list, sortBy) {
                     
                 `;
 
+                newTask.setAttribute('id', `task_${task.id}`);
+
                 if (isCompleted) {
                     completedTasksCount++;
                     completeTaks.append(newTask);
@@ -382,16 +413,18 @@ function load_tasks(task_list, sortBy) {
                     task_list.charAt(0).toUpperCase() + task_list.slice(1)
                 } (${plannedTasksCount})`;    
             } else {
-                plannedTasksView.innerHTML = `<div class="alert alert-warning alert-dismissible fade show">
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                Your have no planned task. Click <i
-                class="bi bi-plus-circle"
-                style="font-size: x-large; color: blue"
-                data-bs-toggle="collapse"
-                data-bs-target="#new-task-form-view"
-                onclick="togglePlusIcon(this)"
-            ></i> to create one.
-                </div>`;
+                plannedTasksView.innerHTML = `
+                    <div class="alert alert-warning alert-dismissible fade show">
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        Your have no planned task. Click <i
+                            class="bi bi-plus-circle"
+                            style="font-size: x-large; color: blue"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#new-task-form-view"
+                            onclick="togglePlusIcon(this)"
+                        ></i> to create one.
+                    </div>
+                    `;
             }
 
             if (completedTasksCount) {
@@ -402,7 +435,8 @@ function load_tasks(task_list, sortBy) {
                 completeTasksView.innerHTML = '';
             }
 
-            updateTasksCount(sortBy);
+            // updateTasksCount(sortBy);
+            updateTasksCount();
             // updateTasksCount(task_list, sortBy);
         })
         // Catch any error
@@ -412,10 +446,10 @@ function load_tasks(task_list, sortBy) {
 }
 
 // function updateTasksCount(task_list, sortBy) {
-function updateTasksCount(sortBy) {
+function updateTasksCount() {
     document.querySelectorAll(".task-count").forEach((task_list) => {
         const taskList = task_list.innerHTML.toLowerCase();
-        fetch(`/tasks/${taskList}/${sortBy}`)
+        fetch(`/tasks/${taskList}/due_date`)
             .then((response) => response.json())
             .then((tasks) => {
                 plannedTasksCount = 0;
@@ -509,11 +543,11 @@ function updateDueDate(taskID) {
     };
 }
 
-function updateReminder(task_id) {
-    const reminderGrp = document.getElementById(`reminderGrp_${task_id}`);
-    const formEditReminder = document.getElementById(`formEditReminder_${task_id}`);
-    const newReminder = document.getElementById(`new_reminder_${task_id}`);
-    const currentReminder = document.getElementById(`currentReminder_${task_id}`);
+function updateReminder(taskID) {
+    const reminderGrp = document.getElementById(`reminderGrp_${taskID}`);
+    const formEditReminder = document.getElementById(`formEditReminder_${taskID}`);
+    const newReminder = document.getElementById(`new_reminder_${taskID}`);
+    const currentReminder = document.getElementById(`currentReminder_${taskID}`);
 
     reminderGrp.style.display = "none";
     formEditReminder.style.display = "block";
@@ -521,7 +555,7 @@ function updateReminder(task_id) {
     newReminder.onchange = () => {
         const newReminderInput = newReminder.value;
 
-        fetch(`/tasks/edit_reminder_date/${task_id}`, {
+        fetch(`/tasks/edit_reminder_date/${taskID}`, {
             method: "POST",
             body: JSON.stringify({
                 reminder_date: newReminderInput,
@@ -539,17 +573,17 @@ function updateReminder(task_id) {
     };
 }
 
-function updateRepeat(task_id) {
-    const formEditRepeat = document.querySelector(`#formEditRepeat_${task_id}`);
-    const currentRepeat = document.querySelector(`#currentRepeat_${task_id}`);
-    const newRepeat = document.querySelector(`#newRepeat_${task_id}`);
+function updateRepeat(taskID) {
+    const formEditRepeat = document.querySelector(`#formEditRepeat_${taskID}`);
+    const currentRepeat = document.querySelector(`#currentRepeat_${taskID}`);
+    const newRepeat = document.querySelector(`#newRepeat_${taskID}`);
     currentRepeat.style.display = "none";
     formEditRepeat.style.display = "block";
 
     newRepeat.onchange = function () {
         const newRpeat = newRepeat.value;
 
-        fetch(`/tasks/edit_repeat/${task_id}`, {
+        fetch(`/tasks/edit_repeat/${taskID}`, {
             method: "POST",
             body: JSON.stringify({
                 repeat: newRpeat,
@@ -570,21 +604,29 @@ function updateRepeat(task_id) {
     };
 }
 
-function deleteTask(task_id) {
 
-    fetch(`/tasks/delete_task/${task_id}`, {
-        method: "DELETE",
-    })
-        .then((response) => response.json())
-        .then((result) => {            
-            document.querySelectorAll(".task-list").forEach((task_list) => {
-                if (task_list.classList.contains("active")) {
-                    const taskList = task_list.dataset.taskslist;
-                    load_tasks(taskList, "due_date");
-                }
-            });
-        })
-        .catch((error) => {
-            console.error("Error:", error);
-        });
+function deleteTask(id) {
+    var task = document.getElementById(`task_${id}`);
+    var opacity = 1;
+    var interval = setInterval(function() {
+        if (opacity > 0) {
+            opacity -= 0.1;
+            task.style.opacity = opacity;
+        } else {
+            task.style.display = 'none';
+            clearInterval(interval);
+
+            fetch(`/tasks/delete_task/${id}`, {
+                    method: "DELETE",
+                })
+                    .then((response) => response.json())
+                    .then((result) => {        
+                        loadCurrentTaskList();
+                    })
+                    .catch((error) => {
+                        console.error("Error:", error);
+                    });
+        }
+    }, 100);
 }
+
