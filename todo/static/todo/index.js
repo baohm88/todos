@@ -233,6 +233,10 @@ function toggleImportant(task_id) {
 }
 
 function filterTasks(title) {
+    if (title.length == 0) {
+        loadCurrentTaskList();
+    }
+
     fetch(`/tasks/all/due_date`)
             .then((response) => response.json())
             .then((tasksFromServer) => {
@@ -246,7 +250,7 @@ function filterTasks(title) {
                         filteredTasks.push(task)
                     }
                 });
-                load_tasks(filteredTasks, 'due_date');
+                renderTasks(filteredTasks);
             })
             // Catch any error
             .catch((error) => {
@@ -254,7 +258,7 @@ function filterTasks(title) {
             });
 }
 
-function load_tasks(task_list, sortBy) {
+function renderTasks(tasks) {
     const plannedTasksView = document.getElementById("planned-tasks-view");
     const completeTasksView = document.getElementById("complete-tasks-view");
     const today = new Date();
@@ -273,179 +277,181 @@ function load_tasks(task_list, sortBy) {
 
     const completeTaks = document.querySelector("#completed-tasks");
 
+
+    completedTasksCount = 0;
+    plannedTasksCount = 0;
+
+    tasks.forEach((task) => {
+        const taskId = task.id;
+        const title = task.title;
+        const reminderDate = task.reminder_date;
+        const repeat = task.repeat;
+        const important = task.important;
+        const dueDate = new Date(task.due_date);
+        const newTask = document.createElement("div");
+        const overDue = today > dueDate;
+        const isCompleted = task.completed;
+
+        newTask.className =
+            "d-flex align-items-center border rounded mb-3 bg-white shadow-sm";
+
+        newTask.innerHTML = `
+            <div class="p-3">
+                <i
+                    class="${isCompleted ? "bi bi-check-circle-fill" : "bi bi-circle"}"
+                    onmouseover="${isCompleted ? "" : "showCheckIcon(this)"}"
+                    onmouseout="${isCompleted ? "" : "hideCheckIcon(this)"}"
+                    onclick="toggleComplete(${taskId})"
+                    style="font-size: large; color: blue"
+                ></i>
+            </div>
+            <div class="flex-grow-1 p-2">
+                <div class="d-flex flex-column">
+                    <div 
+                        class="${isCompleted? "text-decoration-line-through": ""}"
+                        ondblclick="updateTitle(${taskId})"
+                        id="titleGrp_${taskId}"
+                    >${title}
+                    </div>
+                    
+                    <form class="form_edit mb-2" id="formEditTitle_${taskId}">
+                        <textarea class="mb-2" rows="1" id="newTitle_${taskId}">${title}</textarea>
+                        <div class="border-top py-1">
+                            <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                            <button class="btn btn-secondary btn-sm">Cancel</button>
+                        </div>
+                    </form>
+
+                    <div class="d-flex flex-wrap" style="font-size: small">
+
+                        <div 
+                            class="me-3" style="${
+                                overDue ? "color: rgb(255, 0, 0)" : ""
+                            }" 
+                            id="dueDateGrp_${taskId}" 
+                            onclick="updateDueDate(${taskId})"
+                        >
+                            <i class="${task.due_date ? "bi bi-calendar-check": ""}"></i>
+                            <span id="currentDueDate_${taskId}">${task.due_date ? task.due_date : ""}</span>
+                        </div>
+
+                        <form class="form_edit me-2" id="formEditDue_${taskId}">
+                            <i class="bi bi-calendar-check"></i>
+                            <input 
+                                id="newTaskDueDate_${taskId}"
+                                type="date"
+                            />
+                        </form>
+
+                        <div 
+                            class="me-3" 
+                            id="reminderGrp_${taskId}"
+                            onclick="updateReminder(${taskId})"
+                        >
+                            <i class="${reminderDate ? "bi bi-bell" : ""}" ></i>
+                            <span id="currentReminder_${taskId}">${reminderDate ? reminderDate : ""}</span>
+                        </div>
+
+                        <form class="form_edit me-2" id="formEditReminder_${taskId}">
+                            <i class="bi bi-calendar-check"></i>
+                            <input 
+                                id="new_reminder_${taskId}"
+                                type="date"
+                            />
+                        </form>
+
+                        <div id="repeatGrp_${taskId}" onclick="updateRepeat(${taskId})" class="me-2">
+                            <i class="${repeat ? "bi bi-repeat" : ""}"></i>
+                            <span id="currentRepeat_${taskId}"> ${repeat ? repeat : ""}</span>
+                        </div>
+
+                        <form class="form_edit me-2" id="formEditRepeat_${taskId}">
+                            <select id="newRepeat_${taskId}">
+                                <option value="" disabled selected>Select 1 option</option>
+                                <option value="Daily">Daily</option>
+                                <option value="Weekly">Weekly</option>
+                                <option value="Montly">Monthly</option>
+                                <option value="Yearly">Yearly</option>
+                            </select>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+            <div class="${isCompleted ? "p-0" : "p-3"}">
+                <i
+                    class="${isCompleted ? "" : important ? "bi bi-star-fill": "bi bi-star"}"
+                    data-bs-toggle="tooltip"
+                    style="font-size: large; color: blue"
+                    data-bs-placement="bottom"
+                    onclick="toggleImportant(${taskId})"
+                    title="Mask task as important"
+                    id="currentImportant_${taskId}"
+                >
+                </i>
+            </div>
+            
+            <div class="${isCompleted ? "p-3" : "p-0"}">
+                <i class="${isCompleted ? "bi bi-trash3" : ""}" 
+                onclick="deleteTask(${taskId})"></i>
+            </div>
+
+            
+        `;
+
+        newTask.setAttribute('id', `task_${task.id}`);
+
+        if (isCompleted) {
+            completedTasksCount++;
+            completeTaks.append(newTask);
+        } else {
+            plannedTasksCount++;
+            plannedTasksView.append(newTask);
+        }
+    });
+
+    if (plannedTasksCount) {
+        document.querySelector("#planned-tasks-count").innerHTML = `Tasks (${plannedTasksCount})`;    
+    } else {
+        plannedTasksView.innerHTML = `
+            <div class="alert alert-warning alert-dismissible fade show">
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                Your have no planned task. Click <i
+                    class="bi bi-plus-circle"
+                    style="font-size: x-large; color: blue"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#new-task-form-view"
+                    onclick="togglePlusIcon(this)"
+                ></i> to create one.
+            </div>
+            `;
+    }
+
+    if (completedTasksCount) {
+        document.getElementById(
+            "complete-tasks-count"
+        ).innerHTML = `&nbsp &nbsp Completed (${completedTasksCount})`;
+    } else {
+        completeTasksView.innerHTML = '';
+    }
+}
+
+function load_tasks(task_list, sortBy) {
+    // const plannedTasksView = document.getElementById("planned-tasks-view");
+    // const completeTasksView = document.getElementById("complete-tasks-view");
+
+
     fetch(`/tasks/${task_list}/${sortBy}`)
         .then((response) => response.json())
         .then((tasks) => {
-            completedTasksCount = 0;
-            plannedTasksCount = 0;
-
-            tasks.forEach((task) => {
-                const taskId = task.id;
-                const title = task.title;
-                const reminderDate = task.reminder_date;
-                const repeat = task.repeat;
-                const important = task.important;
-                const dueDate = new Date(task.due_date);
-                const newTask = document.createElement("div");
-                const overDue = today > dueDate;
-                const isCompleted = task.completed;
-
-                newTask.className =
-                    "d-flex align-items-center border rounded mb-3 bg-white shadow-sm";
-
-                newTask.innerHTML = `
-                    <div class="p-3">
-                        <i
-                            class="${isCompleted ? "bi bi-check-circle-fill" : "bi bi-circle"}"
-                            onmouseover="${isCompleted ? "" : "showCheckIcon(this)"}"
-                            onmouseout="${isCompleted ? "" : "hideCheckIcon(this)"}"
-                            onclick="toggleComplete(${taskId})"
-                            style="font-size: large; color: blue"
-                        ></i>
-                    </div>
-                    <div class="flex-grow-1 p-2">
-                        <div class="d-flex flex-column">
-                            <div 
-                                class="${isCompleted? "text-decoration-line-through": ""}"
-                                ondblclick="updateTitle(${taskId})"
-                                id="titleGrp_${taskId}"
-                            >${title}
-                            </div>
-                            
-                            <form class="form_edit mb-2" id="formEditTitle_${taskId}">
-                                <textarea class="mb-2" rows="1" id="newTitle_${taskId}">${title}</textarea>
-                                <div class="border-top py-1">
-                                    <button type="submit" class="btn btn-primary btn-sm">Save</button>
-                                    <button class="btn btn-secondary btn-sm">Cancel</button>
-                                </div>
-                            </form>
-
-                            <div class="d-flex flex-wrap" style="font-size: small">
-
-                                <div 
-                                    class="me-3" style="${
-                                        overDue ? "color: rgb(255, 0, 0)" : ""
-                                    }" 
-                                    id="dueDateGrp_${taskId}" 
-                                    onclick="updateDueDate(${taskId})"
-                                >
-                                    <i class="${task.due_date ? "bi bi-calendar-check": ""}"></i>
-                                    <span id="currentDueDate_${taskId}">${task.due_date ? task.due_date : ""}</span>
-                                </div>
-
-                                <form class="form_edit me-2" id="formEditDue_${taskId}">
-                                    <i class="bi bi-calendar-check"></i>
-                                    <input 
-                                        id="newTaskDueDate_${taskId}"
-                                        type="date"
-                                    />
-                                </form>
-
-                                <div 
-                                    class="me-3" 
-                                    id="reminderGrp_${taskId}"
-                                    onclick="updateReminder(${taskId})"
-                                >
-                                    <i class="${reminderDate ? "bi bi-bell" : ""}" ></i>
-                                    <span id="currentReminder_${taskId}">${reminderDate ? reminderDate : ""}</span>
-                                </div>
-
-                                <form class="form_edit me-2" id="formEditReminder_${taskId}">
-                                    <i class="bi bi-calendar-check"></i>
-                                    <input 
-                                        id="new_reminder_${taskId}"
-                                        type="date"
-                                    />
-                                </form>
-
-                                <div id="repeatGrp_${taskId}" onclick="updateRepeat(${taskId})" class="me-2">
-                                    <i class="${repeat ? "bi bi-repeat" : ""}"></i>
-                                    <span id="currentRepeat_${taskId}"> ${repeat ? repeat : ""}</span>
-                                </div>
-
-                                <form class="form_edit me-2" id="formEditRepeat_${taskId}">
-                                    <select id="newRepeat_${taskId}">
-                                        <option value="" disabled selected>Select 1 option</option>
-                                        <option value="Daily">Daily</option>
-                                        <option value="Weekly">Weekly</option>
-                                        <option value="Montly">Monthly</option>
-                                        <option value="Yearly">Yearly</option>
-                                    </select>
-                                </form>
-
-                            </div>
-                        </div>
-                    </div>
-                    <div class="${isCompleted ? "p-0" : "p-3"}">
-                        <i
-                            class="${isCompleted ? "" : important ? "bi bi-star-fill": "bi bi-star"}"
-                            data-bs-toggle="tooltip"
-                            style="font-size: large; color: blue"
-                            data-bs-placement="bottom"
-                            onclick="toggleImportant(${taskId})"
-                            title="Mask task as important"
-                            id="currentImportant_${taskId}"
-                        >
-                        </i>
-                    </div>
-                    
-                    <div class="${isCompleted ? "p-3" : "p-0"}">
-                        <i class="${isCompleted ? "bi bi-trash3" : ""}" 
-                        onclick="deleteTask(${taskId})"></i>
-                    </div>
-
-                    
-                `;
-
-                newTask.setAttribute('id', `task_${task.id}`);
-
-                if (isCompleted) {
-                    completedTasksCount++;
-                    completeTaks.append(newTask);
-                } else {
-                    plannedTasksCount++;
-                    plannedTasksView.append(newTask);
-                }
-            });
-
-            if (plannedTasksCount) {
-                document.querySelector("#planned-tasks-count").innerHTML = `${
-                    task_list.charAt(0).toUpperCase() + task_list.slice(1)
-                } (${plannedTasksCount})`;    
-            } else {
-                plannedTasksView.innerHTML = `
-                    <div class="alert alert-warning alert-dismissible fade show">
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        Your have no planned task. Click <i
-                            class="bi bi-plus-circle"
-                            style="font-size: x-large; color: blue"
-                            data-bs-toggle="collapse"
-                            data-bs-target="#new-task-form-view"
-                            onclick="togglePlusIcon(this)"
-                        ></i> to create one.
-                    </div>
-                    `;
-            }
-
-            if (completedTasksCount) {
-                document.getElementById(
-                    "complete-tasks-count"
-                ).innerHTML = `&nbsp &nbsp Completed (${completedTasksCount})`;
-            } else {
-                completeTasksView.innerHTML = '';
-            }
-
-            // updateTasksCount(sortBy);
+            renderTasks(tasks);
             updateTasksCount();
-            // updateTasksCount(task_list, sortBy);
         })
-        // Catch any error
         .catch((error) => {
             console.error("Error:", error);
         });
 }
 
-// function updateTasksCount(task_list, sortBy) {
 function updateTasksCount() {
     document.querySelectorAll(".task-count").forEach((task_list) => {
         const taskList = task_list.innerHTML.toLowerCase();
@@ -461,7 +467,6 @@ function updateTasksCount() {
                 // Update planned task count in each button
                 document.getElementById(`${taskList}TasksCount`).innerHTML = `(${plannedTasksCount})`;
             })
-            // Catch any error
             .catch((error) => {
                 console.error("Error:", error);
             });

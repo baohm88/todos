@@ -26,6 +26,11 @@
         {% block script %} {% endblock %}
     </head>
     <body>
+
+        {% if user.is_authenticated %}
+            {% include 'todo/navbar.html' %}
+        {% endif %}
+        
         <div class="container-fluid">
             {% block body %} {% endblock %}
         </div>
