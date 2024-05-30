@@ -220,7 +220,7 @@ function toggleComplete(task_id) {
 }
 
 function toggleImportant(task_id) {
-    const currentImportant = document.getElementById(`currentImportant_${task_id}`);
+    const currentImportant = document.querySelector(`#currentImportant_${task_id}`);
     
     fetch(`/tasks/${task_id}`)
         .then((response) => response.json())
@@ -380,7 +380,7 @@ function renderTasks(tasks) {
                             onclick="updateReminder(${taskId})"
                         >
                             <i class="bi bi-bell" ></i>
-                            <span id="currentReminder_${taskId}">${reminderDate ? formatedReminderDate : ""}</span>
+                            <span id="currentReminder_${taskId}">${task.reminder_date ? formatedReminderDate : ""}</span>
                         </div>
 
                         <form class="form_edit me-2" id="formEditReminder_${taskId}">
@@ -449,7 +449,7 @@ function renderTasks(tasks) {
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 Your have no planned task. Click <i
                     class="bi bi-plus-circle"
-                    style="font-size: x-large; color: blue"
+                    style="font-size: large; color: blue"
                     data-bs-toggle="collapse"
                     data-bs-target="#new-task-form-view"
                     onclick="togglePlusIcon(this)"
@@ -459,9 +459,9 @@ function renderTasks(tasks) {
     }
 
     if (completedTasksCount) {
-        document.getElementById(
-            "complete-tasks-count"
-        ).innerHTML = `&nbsp &nbsp Completed (${completedTasksCount})`;
+        document.querySelector(
+            "#complete-tasks-count"
+        ).innerHTML = `&nbsp Completed (${completedTasksCount})`;
     } else {
         completeTasksView.innerHTML = '';
     }
@@ -492,7 +492,7 @@ function updateTasksCount() {
                     }
                 });
                 // Update planned task count in each button
-                document.getElementById(`${taskList}TasksCount`).innerHTML = `(${plannedTasksCount})`;
+                document.querySelector(`#${taskList}TasksCount`).innerHTML = `(${plannedTasksCount})`;
             })
             .catch((error) => {
                 console.error("Error:", error);
@@ -504,7 +504,6 @@ function sortTasks() {
     document.querySelectorAll(".sort-tasks").forEach((task_list) => {
         task_list.onclick = () => {
             const sortBy = task_list.dataset.sort_by;
-
             document.querySelectorAll(".task-list").forEach((task_list) => {
                 if (task_list.className.includes("active")) {
                     const taskslist = task_list.dataset.taskslist;
@@ -516,13 +515,13 @@ function sortTasks() {
 }
 
 function updateTitle(taskID) {
-    const currentTitle = document.getElementById(`titleGrp_${taskID}`);
-    const formEditTitle = document.getElementById(`formEditTitle_${taskID}`);
-    currentTitle.style.display = "none";
-    formEditTitle.style.display = "block";
+    const currentTitle = document.querySelector(`#titleGrp_${taskID}`);
+    const formEditTitle = document.querySelector(`#formEditTitle_${taskID}`);
+
+    showEditForm(formEditTitle, currentTitle);
 
     formEditTitle.onsubmit = function () {
-        const newTitle = document.getElementById(`newTitle_${taskID}`).value;
+        const newTitle = document.querySelector(`#newTitle_${taskID}`).value;
 
         fetch(`/tasks/${taskID}`, {
             method: "PUT",
@@ -532,8 +531,7 @@ function updateTitle(taskID) {
         })
         .then(() => {
             currentTitle.innerHTML = newTitle;
-            formEditTitle.style.display = "none";
-            currentTitle.style.display = "block";
+            hideEditForm(formEditTitle,currentTitle);
         })
         .catch((error) => {
             console.error("Error:", error);
@@ -543,13 +541,11 @@ function updateTitle(taskID) {
 }
 
 function updateDueDate(taskID) {
-    const dueDateGrp = document.getElementById(`dueDateGrp_${taskID}`);
-    const formEditDue = document.getElementById(`formEditDue_${taskID}`);
-    const newTaskDueDate = document.getElementById(`newTaskDueDate_${taskID}`);
-    const currentDueDate = document.getElementById(`currentDueDate_${taskID}`);
+    const dueDateGrp = document.querySelector(`#dueDateGrp_${taskID}`);
+    const formEditDue = document.querySelector(`#formEditDue_${taskID}`);
+    const newTaskDueDate = document.querySelector(`#newTaskDueDate_${taskID}`);
 
-    dueDateGrp.style.display = "none";
-    formEditDue.style.display = "block";
+    showEditForm(formEditDue, dueDateGrp);
 
     newTaskDueDate.onchange = () => {
         const newTaskDueDateInput = newTaskDueDate.value;
@@ -562,8 +558,7 @@ function updateDueDate(taskID) {
             }),
         })
         .then(() => {
-            dueDateGrp.style.display = "block";
-            formEditDue.style.display = "none";
+            hideEditForm(formEditDue, dueDateGrp);
             updateDueDateGrpStyle(newDueDate, taskID);
             updateTasksCount();
         })
@@ -574,8 +569,8 @@ function updateDueDate(taskID) {
 }
 
 function updateDueDateGrpStyle(newDueDate, taskID) {
-    const dueDateGrp = document.getElementById(`dueDateGrp_${taskID}`);
-    const currentDueDate = document.getElementById(`currentDueDate_${taskID}`);
+    const dueDateGrp = document.querySelector(`#dueDateGrp_${taskID}`);
+    const currentDueDate = document.querySelector(`#currentDueDate_${taskID}`);
     const today = new Date();
     let dateFormat = { weekday: 'short', month: 'short', day: '2-digit', year: 'numeric' }
     if (today.getFullYear() === newDueDate.getFullYear()) {
@@ -584,12 +579,11 @@ function updateDueDateGrpStyle(newDueDate, taskID) {
 
     let newFormatedDueDate = newDueDate.toLocaleDateString('en-US', dateFormat);
     
-    if (today.getDate() === newDueDate.getDate()) {
+    if (today.getDate() === newDueDate.getDate() && today.getFullYear() === newDueDate.getFullYear() && today.getMonth() === newDueDate.getMonth()) {
         currentDueDate.innerHTML = 'Today'
         dueDateGrp.style.color = 'blue'
     } else {
         newDueDate.setDate(newDueDate.getDate() + 1)
-
         const overDue = today > newDueDate
         if (overDue) {
             dueDateGrp.style.color = 'red'
@@ -601,30 +595,26 @@ function updateDueDateGrpStyle(newDueDate, taskID) {
     }
 }
 
-
 function updateReminder(taskID) {
-    const reminderGrp = document.getElementById(`reminderGrp_${taskID}`);
-    const formEditReminder = document.getElementById(`formEditReminder_${taskID}`);
-    const newReminder = document.getElementById(`new_reminder_${taskID}`);
-    const currentReminder = document.getElementById(`currentReminder_${taskID}`);
+    const reminderGrp = document.querySelector(`#reminderGrp_${taskID}`);
+    const formEditReminder = document.querySelector(`#formEditReminder_${taskID}`);
+    const newReminder = document.querySelector(`#new_reminder_${taskID}`);
 
-    reminderGrp.style.display = "none";
-    formEditReminder.style.display = "block";
+    showEditForm(formEditReminder, reminderGrp);
+
     newReminder.onchange = () => {
         const newReminderInput = newReminder.value;
-        const date = new Date(newReminderInput);
-        const newReminderDate = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: '2-digit', year: 'numeric' });
+        const newReminderDate = new Date(newReminderInput);
 
         fetch(`/tasks/${taskID}`, {
             method: "PUT",
             body: JSON.stringify({
                 reminder_date: newReminderInput,
             }),
-        }).then((response) => response.json())
+        })
         .then(() => {
-            currentReminder.innerHTML = newReminderDate;
-            reminderGrp.style.display = "block";
-            formEditReminder.style.display = "none";
+            hideEditForm(formEditReminder, reminderGrp);
+            updateReminderGrpStyle(newReminderDate, taskID);
         })
         .catch((error) => {
             console.error("Error:", error);
@@ -632,12 +622,29 @@ function updateReminder(taskID) {
     };
 }
 
+function updateReminderGrpStyle(newReminderDate, taskID) {
+    const currentReminder = document.querySelector(`#currentReminder_${taskID}`);
+    const today = new Date();
+    let dateFormat = { weekday: 'short', month: 'short', day: '2-digit', year: 'numeric' }
+    if (today.getFullYear() === newReminderDate.getFullYear()) {
+        dateFormat = { weekday: 'short', month: 'short', day: '2-digit' }
+    }
+
+    let newFormatedReminderDate = newReminderDate.toLocaleDateString('en-US', dateFormat);
+    
+    if (today.getDate() === newReminderDate.getDate() && today.getFullYear() === newReminderDate.getFullYear() && today.getMonth() === newReminderDate.getMonth()) {
+        currentReminder.innerHTML = 'Today'
+    } else {
+        currentReminder.innerHTML = newFormatedReminderDate;
+    }
+}
+
 function updateRepeat(taskID) {
     const formEditRepeat = document.querySelector(`#formEditRepeat_${taskID}`);
     const currentRepeat = document.querySelector(`#currentRepeat_${taskID}`);
     const newRepeat = document.querySelector(`#newRepeat_${taskID}`);
-    currentRepeat.style.display = "none";
-    formEditRepeat.style.display = "block";
+    
+    showEditForm(formEditRepeat, currentRepeat);
 
     newRepeat.onchange = function () {
         const newRpeat = newRepeat.value;
@@ -650,8 +657,7 @@ function updateRepeat(taskID) {
         })
         .then(() => {
             currentRepeat.innerHTML = newRpeat;
-            formEditRepeat.style.display = "none";
-            currentRepeat.style.display = "inline";
+            hideEditForm(formEditRepeat, currentRepeat);
         })
         .catch((error) => {
             console.error("Error:", error);
@@ -660,26 +666,40 @@ function updateRepeat(taskID) {
     };
 }
 
+function showEditForm(editForm, currentData) {
+    currentData.style.display = "none";
+    editForm.style.display = "inline";
+}
+
+function hideEditForm(editForm, currentData) {
+    currentData.style.display = "inline";
+    editForm.style.display = "none";
+}
+
 function deleteTask(id) {
-    var task = document.getElementById(`task_${id}`);
+    const completedTasksCount = document.getElementById("complete-tasks-count");
+    
+    var task = document.querySelector(`#task_${id}`);
     var opacity = 1;
     var interval = setInterval(function() {
         if (opacity > 0) {
             opacity -= 0.1;
             task.style.opacity = opacity;
         } else {
-            task.style.display = 'none';
+            
+            task.style.height = '0px';
             clearInterval(interval);
 
             fetch(`/tasks/delete_task/${id}`, {
                 method: "DELETE",
             })
-            .then(() => {        
-                loadCurrentTaskList();
+            .then((response) => response.json())
+            .then((task) => {        
+                completedTasksCount.innerHTML = `&nbsp Completed (${task.completed_tasks_count})`;
             })
             .catch((error) => {
                 console.error("Error:", error);
             });
         }
-    }, 100);
+    }, 10);
 }

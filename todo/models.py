@@ -23,7 +23,6 @@ class Task(models.Model):
             "id": self.id,
             "creator": self.creator.username,
             "title": self.title,
-            # "due_date": self.due_date.strftime("%a, %b %d %Y") if self.due_date != None else self.due_date,
             "due_date": self.due_date,
             "reminder_date": self.reminder_date,
             "repeat": self.repeat,

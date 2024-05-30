@@ -97,9 +97,11 @@ def delete_task(request, task_id):
     if request.user.is_authenticated and request.method == 'DELETE':
         task = Task.objects.get(pk=task_id)
         creator =  User.objects.get(pk=request.user.id)
+        
         if task.creator == creator:
             task.delete()
-            return JsonResponse({'message': 'Task deleted.'})
+            completed_tasks_count = Task.objects.filter(creator=request.user,completed=True)
+            return JsonResponse({'message': 'Task deleted.', 'completed_tasks_count': completed_tasks_count.count()})
     else:
         return HttpResponseRedirect(reverse('login'))
 
