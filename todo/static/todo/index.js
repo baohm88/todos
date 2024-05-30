@@ -183,7 +183,6 @@ function addNewTask() {
             repeat: repeat,
         }),
     })
-        .then((response) => response.json())
         .then(() => {
             loadCurrentTaskList();
         })
@@ -238,7 +237,6 @@ function toggleImportant(task_id) {
                     currentImportant.classList.remove('bi-star');
                     currentImportant.classList.add('bi-star-fill');
                 }
-                
                 updateTasksCount();
                 loadCurrentTaskList();
             });
