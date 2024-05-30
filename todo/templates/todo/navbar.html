@@ -89,68 +89,73 @@
                 </button>
             </div>
 
-            <div>
-                <i
-                    class="bi bi-arrow-down-up me-2"
-                    style="font-size: x-large; color: blue"
-                    onclick="sortTasks()"
-                    data-bs-toggle="dropdown"
-                ></i>
-                <ul class="dropdown-menu">
-                    <li class="dropdown-header text-center p-1">
-                        <b>Sort by</b>
-                    </li>
-                    <li class="dropdown-divider m-0"><hr /></li>
-                    <li class="dropdown-item">
-                        <p class="sort-tasks" data-sort_by="important">
-                            <i class="bi bi-star"></i> &nbsp; Importance (<i class="bi bi-arrow-up"></i>)
-                        </p>
-                    </li>
-                    <li class="dropdown-item">
-                        <p class="sort-tasks" data-sort_by="-important">
-                            <i class="bi bi-star"></i> &nbsp; Importance (<i class="bi bi-arrow-down"></i>)
-                        </p>
-                    </li>
-                    <li class="dropdown-item">
-                        <p class="sort-tasks" data-sort_by="due_date">
-                            <i class="bi bi-bell"></i> &nbsp; Due date (<i class="bi bi-arrow-up"></i>)
-                        </p>
-                    </li>
-                    <li class="dropdown-item">
-                        <p class="sort-tasks" data-sort_by="-due_date">
-                            <i class="bi bi-bell"></i> &nbsp; Due date (<i class="bi bi-arrow-down"></i>)
-                        </p>
-                    </li>
-                    <li class="dropdown-item">
-                        <p class="sort-tasks" data-sort_by="title">
-                            <i class="bi bi-arrow-down-up"></i> &nbsp; Alphabetically (<i class="bi bi-arrow-up"></i>)
-                        </p>
-                    </li>
-                    <li class="dropdown-item">
-                        <p class="sort-tasks" data-sort_by="-title">
-                            <i class="bi bi-arrow-down-up"></i> &nbsp; Alphabetically (<i class="bi bi-arrow-down"></i>)
-                        </p>
-                    </li>
-                    <li class="dropdown-item">
-                        <p class="sort-tasks" data-sort_by="created_at">
-                            <i class="bi bi-database-add"></i> &nbsp; Creation date (<i class="bi bi-arrow-up"></i>)
-                        </p>
-                    </li>
-                    <li class="dropdown-item">
-                        <p class="sort-tasks" data-sort_by="-created_at">
-                            <i class="bi bi-database-add"></i> &nbsp; Creation date (<i class="bi bi-arrow-down"></i>)
-                        </p>
-                    </li>
-                </ul>
-
-                <i
-                    class="bi bi-plus-circle-fill"
-                    style="font-size: x-large; color: blue"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#new-task-form-view"
-                    onclick="togglePlusIcon(this)"
-                ></i>
+            <div class="d-flex justify-content-end">
+                <span><div data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Sort">
+                    <i
+                        class="bi bi-arrow-down-up me-2"
+                        style="font-size: x-large; color: blue"
+                        onclick="sortTasks()"
+                        data-bs-toggle="dropdown"
+                    ></i>
+                    <ul class="dropdown-menu">
+                        <li class="dropdown-header text-center p-1">
+                            <b>Sort by</b>
+                        </li>
+                        <li class="dropdown-divider m-0"><hr /></li>
+                        <li class="dropdown-item">
+                            <p class="sort-tasks" data-sort_by="important">
+                                <i class="bi bi-star"></i> &nbsp; Importance (<i class="bi bi-arrow-up"></i>)
+                            </p>
+                        </li>
+                        <li class="dropdown-item">
+                            <p class="sort-tasks" data-sort_by="-important">
+                                <i class="bi bi-star"></i> &nbsp; Importance (<i class="bi bi-arrow-down"></i>)
+                            </p>
+                        </li>
+                        <li class="dropdown-item">
+                            <p class="sort-tasks" data-sort_by="due_date">
+                                <i class="bi bi-bell"></i> &nbsp; Due date (<i class="bi bi-arrow-up"></i>)
+                            </p>
+                        </li>
+                        <li class="dropdown-item">
+                            <p class="sort-tasks" data-sort_by="-due_date">
+                                <i class="bi bi-bell"></i> &nbsp; Due date (<i class="bi bi-arrow-down"></i>)
+                            </p>
+                        </li>
+                        <li class="dropdown-item">
+                            <p class="sort-tasks" data-sort_by="title">
+                                <i class="bi bi-arrow-down-up"></i> &nbsp; Alphabetically (<i class="bi bi-arrow-up"></i>)
+                            </p>
+                        </li>
+                        <li class="dropdown-item">
+                            <p class="sort-tasks" data-sort_by="-title">
+                                <i class="bi bi-arrow-down-up"></i> &nbsp; Alphabetically (<i class="bi bi-arrow-down"></i>)
+                            </p>
+                        </li>
+                        <li class="dropdown-item">
+                            <p class="sort-tasks" data-sort_by="created_at">
+                                <i class="bi bi-database-add"></i> &nbsp; Creation date (<i class="bi bi-arrow-up"></i>)
+                            </p>
+                        </li>
+                        <li class="dropdown-item">
+                            <p class="sort-tasks" data-sort_by="-created_at">
+                                <i class="bi bi-database-add"></i> &nbsp; Creation date (<i class="bi bi-arrow-down"></i>)
+                            </p>
+                        </li>
+                    </ul>
+                </div></span>
+                <span><div data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Create task">
+                    <i
+                        class="bi bi-plus-circle-fill"
+                        style="font-size: x-large; color: blue"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#new-task-form-view"
+                        onclick="togglePlusIcon(this)"
+                    ></i>
+            
+                </div></span>
             </div>
+            
         </div>
     </div>
 
