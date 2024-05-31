@@ -50,3 +50,5 @@ This web app includes only 1 app called **todo** with 2 folders and 3 pythons fi
 7. Click the `(🗑)` to delete the __completed__ tasks.
 
 8. Click the buttons `(⌂ All)`, `(☼ Today)` and `(★ Important)` to switch between __All__ tasks, __Today__ tasks or __Important__ tasks.
+
+9. Type anything in the search box on the top to search tasks by title.
