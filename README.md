@@ -33,4 +33,10 @@ This web app includes only 1 app called **todo** with 2 folders and 3 pythons fi
 
 3. Click the `(↑↓)` button to sort the tasks by __Importance__, __Due date__, __Aphabetically__ or __Creation date__ in ascending or descending order.
 
-4. Click the `(★)` to toggle between Mark task as important and __Remove importance__ 
+4. Click the `(★)` to toggle between __Mark task as important__ and __Remove importance__.
+
+5. Click the `(◯)` to toggle __completion status__ of the task
+
+6. Click the `(🗑)` to delete the __completed__ tasks.
+
+7. Click the buttons `(⌂ All)`, `(☼ Today)` and `(★ Important)` to switch between __All__ tasks, __Today__ tasks or __Important__ tasks.
