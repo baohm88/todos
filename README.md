@@ -19,7 +19,15 @@ This web app includes only 1 app called **todo** with 2 folders and 3 pythons fi
 3. models.py file contain 2 models:
 
     - user model which inherits the AbstractUser model
-    - Task model which defines the title and other info related to the task to help the user create and track their tasks.
+    - Task model which defines the title and other info related to the task to help the user create and track their tasks. This include:
+      - the user or creator of the task
+      - title of the task
+      - the due date of the task or the date on which the task become due
+      - the reminder date on which a reminder will be sent to the user's email or alert will be showned to the user when they access the app.
+      - the repeat or recurring options, either daily, weekly, monthly or yearly.
+      - the importance status
+      - the completion status
+      - the date on which the task was created
 
 4. urls.py file contains the main urls that the user can visit to perform CRUD operations
 
@@ -29,14 +37,16 @@ This web app includes only 1 app called **todo** with 2 folders and 3 pythons fi
 
 1. Go to the main directory and type `python3 manage.py runserver` to start the app.
    
-2. Click the `(⨁)` button on the top right corner to open the create new task menu where the user can enter the task title, due date, reminder date and repeat options of their choice -> click `Add` button to add the task to the list of __Tasks - To Do__.
+2. Sign up to create an account and log in to start creating and tracking your __Tasks - To Do__.
 
-3. Click the `(↑↓)` button to sort the tasks by __Importance__, __Due date__, __Aphabetically__ or __Creation date__ in ascending or descending order.
+3. Click the `(⨁)` button on the top right corner to open the create new task menu where the user can enter the task title, due date, reminder date and repeat options of their choice -> click `Add` button to add the task to the list of __Tasks - To Do__.
 
-4. Click the `(★)` to toggle between __Mark task as important__ and __Remove importance__.
+4. Click the `(↑↓)` button to sort the tasks by __Importance__, __Due date__, __Aphabetically__ or __Creation date__ in ascending or descending order.
 
-5. Click the `(◯)` to toggle __completion status__ of the task
+5. Click the `(★)` to toggle between __Mark task as important__ and __Remove importance__.
 
-6. Click the `(🗑)` to delete the __completed__ tasks.
+6. Click the `(◯)` to toggle __completion status__ of the task
 
-7. Click the buttons `(⌂ All)`, `(☼ Today)` and `(★ Important)` to switch between __All__ tasks, __Today__ tasks or __Important__ tasks.
+7. Click the `(🗑)` to delete the __completed__ tasks.
+
+8. Click the buttons `(⌂ All)`, `(☼ Today)` and `(★ Important)` to switch between __All__ tasks, __Today__ tasks or __Important__ tasks.
