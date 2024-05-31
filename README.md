@@ -31,6 +31,6 @@ This web app includes only 1 app called **todo** with 2 folders and 3 pythons fi
    
 2. Click the `(⨁)` button on the top right corner to open the create new task menu where the user can enter the task title, due date, reminder date and repeat options of their choice -> click `Add` button to add the task to the list of __Tasks - To Do__.
 
-3. Click the `(⇵)` button to sort the tasks by __Importance__, __Due date__, __Aphabetically__ or __Creation date__ in ascending or descending order.
+3. Click the `(↑↓)` button to sort the tasks by __Importance__, __Due date__, __Aphabetically__ or __Creation date__ in ascending or descending order.
 
-4.
+4. Click the `(★)` to toggle between Mark task as important and __Remove importance__ 
