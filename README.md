@@ -28,4 +28,4 @@ This web app includes only 1 app called **todo** with 2 folders and 3 pythons fi
 ## How to run the app
 
 1. Go to the main directory and type `python3 manage.py runserver` to start the app
-2. Click the (+) or <i class="bi bi-plus-circle-fill" style="font-size: x-large; color: blue"></i> button on the top right corner to open the create new task menu where the user can enter the task title, due date, reminder date and repeat options of their choice.
+2. Click the (+) or <i class="bi bi-plus-circle-fill"></i> button on the top right corner to open the create new task menu where the user can enter the task title, due date, reminder date and repeat options of their choice.
