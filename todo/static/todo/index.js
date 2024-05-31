@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
             document.querySelector(".active")?.classList.remove("active");
             task_list.classList.add("active");
             const tasksList = task_list.dataset.taskslist;
-            load_tasks(tasksList, 'due_date');
+            load_tasks(tasksList, "due_date");
         };
     });
 
@@ -19,15 +19,14 @@ document.addEventListener("DOMContentLoaded", () => {
         else document.querySelector("#addTaskButton").disabled = true;
     };
 
-    document.getElementById('search').
-    onkeyup = () => {
-        let title = document.getElementById('search').value;
+    document.querySelector("#search").onkeyup = () => {
+        let title = document.querySelector("#search").value;
         title = title.toLowerCase();
-        filterTasks(title);
-    }
+        filterTasksByTitle(title);
+    };
 
     // Add task on submit
-    document.getElementById("newTaskForm").onsubmit = addNewTask;
+    document.querySelector("#newTaskForm").onsubmit = addNewTask;
 
     // By default, load all tasks
     document.querySelector(".task-list").classList.add("active");
@@ -35,15 +34,14 @@ document.addEventListener("DOMContentLoaded", () => {
     initializeBootstrapTooltip();
 });
 
-
-function initializeBootstrapTooltip()
-{
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+function initializeBootstrapTooltip() {
+    var tooltipTriggerList = [].slice.call(
+        document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    );
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl)
-    })
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
 }
-
 
 function showCheckIcon(x) {
     x.className = "bi-check-circle";
@@ -189,7 +187,7 @@ function addNewTask() {
         .catch((error) => {
             console.error("Error:", error);
         });
-    
+
     resetNewTaskForm();
     return false;
 }
@@ -219,8 +217,10 @@ function toggleComplete(task_id) {
 }
 
 function toggleImportant(task_id) {
-    const currentImportant = document.querySelector(`#currentImportant_${task_id}`);
-    
+    const currentImportant = document.querySelector(
+        `#currentImportant_${task_id}`
+    );
+
     fetch(`/tasks/${task_id}`)
         .then((response) => response.json())
         .then((task) => {
@@ -230,12 +230,12 @@ function toggleImportant(task_id) {
                     important: !task.important,
                 }),
             }).then(() => {
-                if (currentImportant.classList.contains('bi-star-fill')) {
-                    currentImportant.classList.remove('bi-star-fill');
-                    currentImportant.classList.add('bi-star');
+                if (currentImportant.classList.contains("bi-star-fill")) {
+                    currentImportant.classList.remove("bi-star-fill");
+                    currentImportant.classList.add("bi-star");
                 } else {
-                    currentImportant.classList.remove('bi-star');
-                    currentImportant.classList.add('bi-star-fill');
+                    currentImportant.classList.remove("bi-star");
+                    currentImportant.classList.add("bi-star-fill");
                 }
                 updateTasksCount();
                 loadCurrentTaskList();
@@ -243,8 +243,7 @@ function toggleImportant(task_id) {
         });
 }
 
-
-function filterTasks(title) {
+function filterTasksByTitle(title) {
     if (title.length == 0) {
         loadCurrentTaskList();
     }
@@ -252,12 +251,12 @@ function filterTasks(title) {
     fetch(`/tasks/all/due_date`)
         .then((response) => response.json())
         .then((tasksFromServer) => {
-            let filteredTasks = []
-            tasksFromServer.forEach(task => {
-                let tastTitle = task.title;
-                tastTitle =  tastTitle.toLowerCase()
-                if (tastTitle.includes(title)) {
-                    filteredTasks.push(task)
+            let filteredTasks = [];
+            tasksFromServer.forEach((task) => {
+                let taskTitle = task.title;
+                taskTitle = taskTitle.toLowerCase();
+                if (taskTitle.includes(title)) {
+                    filteredTasks.push(task);
                 }
             });
             renderTasks(filteredTasks);
@@ -268,12 +267,11 @@ function filterTasks(title) {
 }
 
 function renderTasks(tasks) {
-    const plannedTasksView = document.getElementById("planned-tasks-view");
-    const completeTasksView = document.getElementById("complete-tasks-view");
+    const plannedTasksView = document.querySelector("#planned-tasks-view");
+    const completeTasksView = document.querySelector("#complete-tasks-view");
     const today = new Date();
 
     plannedTasksView.innerHTML = `<h6 id="planned-tasks-count"></h6>`;
-
     completeTasksView.innerHTML = `
         <h6 data-bs-toggle="collapse" data-bs-target="#completed-tasks">
             <i
@@ -290,7 +288,6 @@ function renderTasks(tasks) {
     plannedTasksCount = 0;
 
     tasks.forEach((task) => {
-        
         const taskId = task.id;
         const title = task.title;
         let reminderDate = new Date(task.reminder_date);
@@ -299,36 +296,55 @@ function renderTasks(tasks) {
         const hasNoDueDate = task.due_date == null;
         let dueDate = new Date(task.due_date);
 
-        let dateFormat = { weekday: 'short', month: 'short', day: '2-digit', year: 'numeric' }
+        let dateFormat = {
+            weekday: "short",
+            month: "short",
+            day: "2-digit",
+            year: "numeric",
+        };
 
         if (today.getFullYear() === dueDate.getFullYear()) {
-            dateFormat = { weekday: 'short', month: 'short', day: '2-digit' }
+            dateFormat = { weekday: "short", month: "short", day: "2-digit" };
         }
 
-        let formatedDueDate = dueDate.toLocaleDateString('en-US', dateFormat);
-        let formatedReminderDate = reminderDate.toLocaleDateString('en-US', dateFormat);
+        let formatedDueDate = dueDate.toLocaleDateString("en-US", dateFormat);
+        let formatedReminderDate = reminderDate.toLocaleDateString(
+            "en-US",
+            dateFormat
+        );
         let isDueToday = false;
-        
-        if (today.getDate() === dueDate.getDate() && today.getFullYear() === dueDate.getFullYear() && today.getMonth() === dueDate.getMonth()) {
+
+        if (
+            today.getDate() === dueDate.getDate() &&
+            today.getFullYear() === dueDate.getFullYear() &&
+            today.getMonth() === dueDate.getMonth()
+        ) {
             isDueToday = true;
-            formatedDueDate = 'Today';
-        }
-        
-        if (today.getDate() === reminderDate.getDate() && today.getFullYear() === reminderDate.getFullYear() && today.getMonth() === reminderDate.getMonth()) {
-            formatedReminderDate = 'Today';
+            formatedDueDate = "Today";
         }
 
-        dueDate.setDate(dueDate.getDate() + 1)
+        if (
+            today.getDate() === reminderDate.getDate() &&
+            today.getFullYear() === reminderDate.getFullYear() &&
+            today.getMonth() === reminderDate.getMonth()
+        ) {
+            formatedReminderDate = "Today";
+        }
+
+        dueDate.setDate(dueDate.getDate() + 1);
         const newTask = document.createElement("div");
         const overDue = today > dueDate;
         const isCompleted = task.completed;
 
-        newTask.className = "d-flex align-items-center border rounded mb-3 bg-white shadow-sm";
+        newTask.className =
+            "d-flex align-items-center border rounded mb-3 bg-white shadow-sm";
 
         newTask.innerHTML = `
             <div class="p-3">
                 <i
-                    class="${isCompleted ? "bi bi-check-circle-fill" : "bi bi-circle"}"
+                    class="${
+                        isCompleted ? "bi bi-check-circle-fill" : "bi bi-circle"
+                    }"
                     onmouseover="${isCompleted ? "" : "showCheckIcon(this)"}"
                     onmouseout="${isCompleted ? "" : "hideCheckIcon(this)"}"
                     onclick="toggleComplete(${taskId})"
@@ -338,7 +354,9 @@ function renderTasks(tasks) {
             <div class="flex-grow-1 p-2">
                 <div class="d-flex flex-column">
                     <div 
-                        class="${isCompleted? "text-decoration-line-through": ""}"
+                        class="${
+                            isCompleted ? "text-decoration-line-through" : ""
+                        }"
                         ondblclick="updateTitle(${taskId})"
                         id="titleGrp_${taskId}"
                     >${title}
@@ -355,13 +373,25 @@ function renderTasks(tasks) {
                     <div class="d-flex flex-wrap" style="font-size: small">
 
                         <div 
-                            class="me-3" style="${hasNoDueDate ? "color: black" : isDueToday? "color: blue" : overDue ? "color: red" : "color: black"}" 
+                            class="me-3" style="${
+                                hasNoDueDate
+                                    ? "color: black"
+                                    : isDueToday
+                                    ? "color: blue"
+                                    : overDue
+                                    ? "color: red"
+                                    : "color: black"
+                            }" 
                             id="dueDateGrp_${taskId}" 
                             onclick="updateDueDate(${taskId})"
                         >
                             <i class="bi bi-calendar-check"></i>
-                            <!-- <span id="currentDueDate_${taskId}">${task.due_date ? task.due_date : ""}</span> -->
-                            <span id="currentDueDate_${taskId}">${task.due_date ? formatedDueDate : ""}</span>
+                            <!-- <span id="currentDueDate_${taskId}">${
+            task.due_date ? task.due_date : ""
+        }</span> -->
+                            <span id="currentDueDate_${taskId}">${
+            task.due_date ? formatedDueDate : ""
+        }</span>
                         </div>
 
                         <form class="form_edit me-2" id="formEditDue_${taskId}">
@@ -378,7 +408,9 @@ function renderTasks(tasks) {
                             onclick="updateReminder(${taskId})"
                         >
                             <i class="bi bi-bell" ></i>
-                            <span id="currentReminder_${taskId}">${task.reminder_date ? formatedReminderDate : ""}</span>
+                            <span id="currentReminder_${taskId}">${
+            task.reminder_date ? formatedReminderDate : ""
+        }</span>
                         </div>
 
                         <form class="form_edit me-2" id="formEditReminder_${taskId}">
@@ -391,7 +423,9 @@ function renderTasks(tasks) {
 
                         <div id="repeatGrp_${taskId}" onclick="updateRepeat(${taskId})" class="me-2">
                             <i class="bi bi-repeat"></i>
-                            <span id="currentRepeat_${taskId}"> ${repeat ? repeat : ""}</span>
+                            <span id="currentRepeat_${taskId}"> ${
+            repeat ? repeat : ""
+        }</span>
                         </div>
 
                         <form class="form_edit me-2" id="formEditRepeat_${taskId}">
@@ -409,7 +443,13 @@ function renderTasks(tasks) {
             </div>
             <div class="${isCompleted ? "p-0" : "p-3"}">
                 <i
-                    class="${isCompleted ? "" : important ? "bi bi-star-fill": "bi bi-star"}"
+                    class="${
+                        isCompleted
+                            ? ""
+                            : important
+                            ? "bi bi-star-fill"
+                            : "bi bi-star"
+                    }"
                     style="font-size: large; color: blue"
                     onclick="toggleImportant(${taskId})"
                     id="currentImportant_${taskId}"
@@ -426,7 +466,7 @@ function renderTasks(tasks) {
             
         `;
 
-        newTask.setAttribute('id', `task_${taskId}`);
+        newTask.setAttribute("id", `task_${taskId}`);
 
         if (isCompleted) {
             completedTasksCount++;
@@ -440,7 +480,9 @@ function renderTasks(tasks) {
     });
 
     if (plannedTasksCount) {
-        document.querySelector("#planned-tasks-count").innerHTML = `Tasks (${plannedTasksCount})`;    
+        document.querySelector(
+            "#planned-tasks-count"
+        ).innerHTML = `Tasks (${plannedTasksCount})`;
     } else {
         plannedTasksView.innerHTML = `
             <div class="alert alert-warning alert-dismissible fade show">
@@ -461,7 +503,7 @@ function renderTasks(tasks) {
             "#complete-tasks-count"
         ).innerHTML = `&nbsp Completed (${completedTasksCount})`;
     } else {
-        completeTasksView.innerHTML = '';
+        completeTasksView.innerHTML = "";
     }
 }
 
@@ -490,7 +532,9 @@ function updateTasksCount() {
                     }
                 });
                 // Update planned task count in each button
-                document.querySelector(`#${taskList}TasksCount`).innerHTML = `(${plannedTasksCount})`;
+                document.querySelector(
+                    `#${taskList}TasksCount`
+                ).innerHTML = `(${plannedTasksCount})`;
             })
             .catch((error) => {
                 console.error("Error:", error);
@@ -527,13 +571,13 @@ function updateTitle(taskID) {
                 title: newTitle,
             }),
         })
-        .then(() => {
-            currentTitle.innerHTML = newTitle;
-            hideEditForm(formEditTitle,currentTitle);
-        })
-        .catch((error) => {
-            console.error("Error:", error);
-        });
+            .then(() => {
+                currentTitle.innerHTML = newTitle;
+                hideEditForm(formEditTitle, currentTitle);
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
         return false;
     };
 }
@@ -547,7 +591,7 @@ function updateDueDate(taskID) {
 
     newTaskDueDate.onchange = () => {
         const newTaskDueDateInput = newTaskDueDate.value;
-        let newDueDate = new Date(newTaskDueDateInput); 
+        let newDueDate = new Date(newTaskDueDateInput);
 
         fetch(`/tasks/${taskID}`, {
             method: "PUT",
@@ -555,14 +599,14 @@ function updateDueDate(taskID) {
                 due_date: newTaskDueDateInput,
             }),
         })
-        .then(() => {
-            hideEditForm(formEditDue, dueDateGrp);
-            updateDueDateGrpStyle(newDueDate, taskID);
-            updateTasksCount();
-        })
-        .catch((error) => {
-            console.error("Error:", error);
-        });
+            .then(() => {
+                hideEditForm(formEditDue, dueDateGrp);
+                updateDueDateGrpStyle(newDueDate, taskID);
+                updateTasksCount();
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
     };
 }
 
@@ -570,23 +614,32 @@ function updateDueDateGrpStyle(newDueDate, taskID) {
     const dueDateGrp = document.querySelector(`#dueDateGrp_${taskID}`);
     const currentDueDate = document.querySelector(`#currentDueDate_${taskID}`);
     const today = new Date();
-    let dateFormat = { weekday: 'short', month: 'short', day: '2-digit', year: 'numeric' }
+    let dateFormat = {
+        weekday: "short",
+        month: "short",
+        day: "2-digit",
+        year: "numeric",
+    };
     if (today.getFullYear() === newDueDate.getFullYear()) {
-        dateFormat = { weekday: 'short', month: 'short', day: '2-digit' }
+        dateFormat = { weekday: "short", month: "short", day: "2-digit" };
     }
 
-    let newFormatedDueDate = newDueDate.toLocaleDateString('en-US', dateFormat);
-    
-    if (today.getDate() === newDueDate.getDate() && today.getFullYear() === newDueDate.getFullYear() && today.getMonth() === newDueDate.getMonth()) {
-        currentDueDate.innerHTML = 'Today'
-        dueDateGrp.style.color = 'blue'
+    let newFormatedDueDate = newDueDate.toLocaleDateString("en-US", dateFormat);
+
+    if (
+        today.getDate() === newDueDate.getDate() &&
+        today.getFullYear() === newDueDate.getFullYear() &&
+        today.getMonth() === newDueDate.getMonth()
+    ) {
+        currentDueDate.innerHTML = "Today";
+        dueDateGrp.style.color = "blue";
     } else {
-        newDueDate.setDate(newDueDate.getDate() + 1)
-        const overDue = today > newDueDate
+        newDueDate.setDate(newDueDate.getDate() + 1);
+        const overDue = today > newDueDate;
         if (overDue) {
-            dueDateGrp.style.color = 'red'
+            dueDateGrp.style.color = "red";
         } else {
-            dueDateGrp.style.color = 'black'
+            dueDateGrp.style.color = "black";
         }
 
         currentDueDate.innerHTML = newFormatedDueDate;
@@ -595,7 +648,9 @@ function updateDueDateGrpStyle(newDueDate, taskID) {
 
 function updateReminder(taskID) {
     const reminderGrp = document.querySelector(`#reminderGrp_${taskID}`);
-    const formEditReminder = document.querySelector(`#formEditReminder_${taskID}`);
+    const formEditReminder = document.querySelector(
+        `#formEditReminder_${taskID}`
+    );
     const newReminder = document.querySelector(`#new_reminder_${taskID}`);
 
     showEditForm(formEditReminder, reminderGrp);
@@ -610,28 +665,42 @@ function updateReminder(taskID) {
                 reminder_date: newReminderInput,
             }),
         })
-        .then(() => {
-            hideEditForm(formEditReminder, reminderGrp);
-            updateReminderGrpStyle(newReminderDate, taskID);
-        })
-        .catch((error) => {
-            console.error("Error:", error);
-        });
+            .then(() => {
+                hideEditForm(formEditReminder, reminderGrp);
+                updateReminderGrpStyle(newReminderDate, taskID);
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
     };
 }
 
 function updateReminderGrpStyle(newReminderDate, taskID) {
-    const currentReminder = document.querySelector(`#currentReminder_${taskID}`);
+    const currentReminder = document.querySelector(
+        `#currentReminder_${taskID}`
+    );
     const today = new Date();
-    let dateFormat = { weekday: 'short', month: 'short', day: '2-digit', year: 'numeric' }
+    let dateFormat = {
+        weekday: "short",
+        month: "short",
+        day: "2-digit",
+        year: "numeric",
+    };
     if (today.getFullYear() === newReminderDate.getFullYear()) {
-        dateFormat = { weekday: 'short', month: 'short', day: '2-digit' }
+        dateFormat = { weekday: "short", month: "short", day: "2-digit" };
     }
 
-    let newFormatedReminderDate = newReminderDate.toLocaleDateString('en-US', dateFormat);
-    
-    if (today.getDate() === newReminderDate.getDate() && today.getFullYear() === newReminderDate.getFullYear() && today.getMonth() === newReminderDate.getMonth()) {
-        currentReminder.innerHTML = 'Today'
+    let newFormatedReminderDate = newReminderDate.toLocaleDateString(
+        "en-US",
+        dateFormat
+    );
+
+    if (
+        today.getDate() === newReminderDate.getDate() &&
+        today.getFullYear() === newReminderDate.getFullYear() &&
+        today.getMonth() === newReminderDate.getMonth()
+    ) {
+        currentReminder.innerHTML = "Today";
     } else {
         currentReminder.innerHTML = newFormatedReminderDate;
     }
@@ -641,7 +710,7 @@ function updateRepeat(taskID) {
     const formEditRepeat = document.querySelector(`#formEditRepeat_${taskID}`);
     const currentRepeat = document.querySelector(`#currentRepeat_${taskID}`);
     const newRepeat = document.querySelector(`#newRepeat_${taskID}`);
-    
+
     showEditForm(formEditRepeat, currentRepeat);
 
     newRepeat.onchange = function () {
@@ -653,13 +722,13 @@ function updateRepeat(taskID) {
                 repeat: newRpeat,
             }),
         })
-        .then(() => {
-            currentRepeat.innerHTML = newRpeat;
-            hideEditForm(formEditRepeat, currentRepeat);
-        })
-        .catch((error) => {
-            console.error("Error:", error);
-        });
+            .then(() => {
+                currentRepeat.innerHTML = newRpeat;
+                hideEditForm(formEditRepeat, currentRepeat);
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
         return false;
     };
 }
@@ -675,29 +744,28 @@ function hideEditForm(editForm, currentData) {
 }
 
 function deleteTask(id) {
-    const completedTasksCount = document.getElementById("complete-tasks-count");
-    
+    const completedTasksCount = document.querySelector("#complete-tasks-count");
+
     var task = document.querySelector(`#task_${id}`);
     var opacity = 1;
-    var interval = setInterval(function() {
+    var interval = setInterval(function () {
         if (opacity > 0) {
             opacity -= 0.1;
             task.style.opacity = opacity;
         } else {
-            
-            task.style.height = '0px';
+            task.style.height = "0px";
             clearInterval(interval);
 
             fetch(`/tasks/delete_task/${id}`, {
                 method: "DELETE",
             })
-            .then((response) => response.json())
-            .then((task) => {        
-                completedTasksCount.innerHTML = `&nbsp Completed (${task.completed_tasks_count})`;
-            })
-            .catch((error) => {
-                console.error("Error:", error);
-            });
+                .then((response) => response.json())
+                .then((task) => {
+                    completedTasksCount.innerHTML = `&nbsp Completed (${task.completed_tasks_count})`;
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                });
         }
     }, 10);
 }
